@@ -59,6 +59,10 @@ dependencies {
     implementation(Libs.Hilt.navigationCompiler)
     kapt(Libs.Hilt.hiltCompiler)
 
+    //Glide
+    implementation(Libs.Glide.glide)
+    annotationProcessor(Libs.Glide.compiler)
+
     testImplementation (Libs.Test.Junit)
     androidTestImplementation (Libs.Test.extJunit)
     androidTestImplementation (Libs.Test.espresso)

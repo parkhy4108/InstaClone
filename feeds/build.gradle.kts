@@ -60,6 +60,8 @@ dependencies {
     implementation(Libs.Hilt.navigationCompiler)
     kapt(Libs.Hilt.hiltCompiler)
 
+    implementation(Libs.skydovesGlide)
+
     testImplementation (Libs.Test.Junit)
     androidTestImplementation (Libs.Test.extJunit)
     androidTestImplementation (Libs.Test.espresso)

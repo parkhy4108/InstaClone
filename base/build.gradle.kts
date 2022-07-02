@@ -51,6 +51,8 @@ dependencies {
     api(Libs.FireBase.authKTX)
     api(Libs.FireBase.firestoreKTX)
 
+    api(Libs.facebook)
+
     testImplementation(Libs.Test.Junit)
     androidTestImplementation(Libs.Test.extJunit)
     androidTestImplementation(Libs.Test.espresso)
