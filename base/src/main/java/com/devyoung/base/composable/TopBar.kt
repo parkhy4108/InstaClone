@@ -1,6 +1,7 @@
 package com.devyoung.base.composable
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
@@ -24,6 +25,6 @@ fun TopBar(
             text = text,
             color = Color.Black,
         )
-    }
 
+    }
 }

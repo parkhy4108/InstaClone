@@ -1,11 +1,10 @@
 package com.devyoung.login.di
 
-import com.devyoung.login.data.repository.LoginRepositoryImpl
-import com.devyoung.login.domain.repository.LoginRepository
-import com.devyoung.login.domain.usecase.GetCurrentUser
-import com.devyoung.login.domain.usecase.LoginUseCases
-import com.devyoung.login.domain.usecase.UserLogin
-import com.devyoung.login.domain.usecase.UserSignUp
+import com.devyoung.login.data.repository.FirebaseRepositoryImpl
+import com.devyoung.login.data.repository.FirestoreRepositoryImpl
+import com.devyoung.login.domain.repository.FirebaseRepository
+import com.devyoung.login.domain.repository.FirestoreRepository
+import com.devyoung.login.domain.usecase.*
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,15 +22,20 @@ object Module {
 
     @Provides
     @Singleton
-    fun provideFirebaseRepository(): LoginRepository = LoginRepositoryImpl()
+    fun provideFirebaseRepository(): FirebaseRepository = FirebaseRepositoryImpl()
 
     @Provides
     @Singleton
-    fun provideUseCases(repository: LoginRepository): LoginUseCases{
+    fun provideFirestoreRepository(): FirestoreRepository = FirestoreRepositoryImpl()
+
+    @Provides
+    @Singleton
+    fun provideUseCases(firebaseRepository: FirebaseRepository, fireStoreRepository: FirestoreRepository): LoginUseCases{
         return LoginUseCases(
-            getCurrentUser = GetCurrentUser(repository),
-            userLogin = UserLogin(repository),
-            userSignUp = UserSignUp(repository),
+            getCurrentUser = GetCurrentUser(firebaseRepository),
+            userLogin = UserLogin(firebaseRepository),
+            userSignUp = UserSignUp(firebaseRepository),
+            saveUserInfo = SaveUserInfo(fireStoreRepository)
         )
     }
 

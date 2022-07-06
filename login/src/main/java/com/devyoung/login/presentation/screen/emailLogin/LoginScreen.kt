@@ -37,7 +37,7 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(25.dp))
 
-        UserNameField(value = uiState.userName, onNewValue = viewModel::onEmailChange, modifier = Modifier)
+        UserNameField(value = uiState.userName, onNewValue = {viewModel.onEvent(LoginEvent.EmailChange(it))}, modifier = Modifier)
 
         Spacer(modifier = Modifier.height(18.dp))
 
@@ -51,10 +51,7 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(18.dp))
 
-        BasicTextButton(text = AppText.facebookLoginScreen , enable = true, modifier = Modifier) {
-            viewModel.onFacebookLoginClick(openScreen)
-        }
-
+//        FaceBookLoginButton()
 
         BasicTextButton(text = AppText.signUp, enable = true, modifier = Modifier) {
             viewModel.onSignUpClick(openScreen)

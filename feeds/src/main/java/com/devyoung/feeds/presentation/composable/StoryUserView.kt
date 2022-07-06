@@ -10,7 +10,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.devyoung.feeds.data.User
+import com.devyoung.feeds.data.model.User
 
 @Composable
 fun StoryUserView(user: User){
@@ -20,7 +20,7 @@ fun StoryUserView(user: User){
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        ProfileImg(
+        Img(
             imgUrl = user.profileImage,
             modifier = Modifier
                 .clip(CircleShape)

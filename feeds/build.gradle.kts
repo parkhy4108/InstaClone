@@ -62,6 +62,11 @@ dependencies {
 
     implementation(Libs.skydovesGlide)
 
+    implementation(Libs.coil)
+
+
+
+
     testImplementation (Libs.Test.Junit)
     androidTestImplementation (Libs.Test.extJunit)
     androidTestImplementation (Libs.Test.espresso)

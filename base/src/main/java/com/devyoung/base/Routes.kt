@@ -8,4 +8,6 @@ const val HOME_SCREEN = "Home"
 const val FEED_SCREEN = "Feed"
 const val BOTTOM_BAR = "Bottom"
 const val PROFILE_SCREEN =  "Profile"
-
+const val POST_SCREEN = "Post"
+const val URL = "uri"
+const val URL_ARG = "?$URL={$URL}"

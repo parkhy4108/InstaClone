@@ -5,13 +5,17 @@
       <map>
         <entry key="..\:/AndroidStudioProjects/InstaClone/app/src/main/res/drawable/ic_feed.xml" value="0.1015" />
         <entry key="..\:/AndroidStudioProjects/InstaClone/app/src/main/res/xml/network_security_config.xml" value="0.1" />
+        <entry key="..\:/AndroidStudioProjects/InstaClone/base/src/main/res/drawable/ic_add_photo.xml" value="0.1" />
         <entry key="..\:/AndroidStudioProjects/InstaClone/base/src/main/res/drawable/ic_feed.xml" value="0.1015" />
         <entry key="..\:/AndroidStudioProjects/InstaClone/base/src/main/res/drawable/ic_feeds.xml" value="0.1015" />
         <entry key="..\:/AndroidStudioProjects/InstaClone/base/src/main/res/drawable/ic_person.xml" value="0.1015" />
         <entry key="..\:/AndroidStudioProjects/InstaClone/base/src/main/res/drawable/ic_visibility.xml" value="0.1" />
         <entry key="..\:/AndroidStudioProjects/InstaClone/base/src/main/res/drawable/ic_visibility_off.xml" value="0.1" />
+        <entry key="..\:/AndroidStudioProjects/InstaClone/feeds/src/main/res/drawable/ic_add.xml" value="0.1" />
+        <entry key="..\:/AndroidStudioProjects/InstaClone/feeds/src/main/res/drawable/ic_add_photo.xml" value="0.1" />
         <entry key="..\:/AndroidStudioProjects/InstaClone/feeds/src/main/res/drawable/ic_empty_user_img.xml" value="0.1" />
         <entry key="..\:/AndroidStudioProjects/InstaClone/feeds/src/main/res/drawable/ic_nonlike.xml" value="0.3135" />
+        <entry key="..\:/AndroidStudioProjects/InstaClone/feeds/src/main/res/drawable/ic_okay.xml" value="0.1" />
         <entry key="..\:/AndroidStudioProjects/InstaClone/profile/src/main/res/drawable/ic_empty_user_img.xml" value="0.1" />
       </map>
     </option>

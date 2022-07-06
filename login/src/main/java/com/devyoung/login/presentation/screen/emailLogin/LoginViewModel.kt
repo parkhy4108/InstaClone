@@ -35,7 +35,7 @@ class LoginViewModel @Inject constructor(
 
     fun onLoginClick(openAndPopUp:(String, String)-> Unit) {
         if (!Patterns.EMAIL_ADDRESS.matcher(loginState.value.userName).matches()) {
-            return SnackBarManager.showMessage(AppText.emailWrong)
+            SnackBarManager.showMessage(AppText.emailWrong)
         }
         viewModelScope.launch {
             userLogin(email, password) { exception ->
@@ -44,11 +44,6 @@ class LoginViewModel @Inject constructor(
                 }else openAndPopUp(PROFILE_SCREEN, EMAIL_LOGIN_SCREEN)
             }
         }
-
-    }
-
-    fun onFacebookLoginClick(openScreen: (String) -> Unit){
-        openScreen(FACEBOOK_LOGIN_SCREEN)
     }
 
     fun onSignUpClick(openScreen: (String) -> Unit){
@@ -58,12 +53,30 @@ class LoginViewModel @Inject constructor(
 
 
 
-//    fun linkWithEmail(){
-//        viewModelScope.launch {
-//            linkAccount(email,password) { error ->
-//                if(error!=null) SnackBarManager.showMessage(R.string.error)
-//            }
-//        }
-//    }
+    fun onEvent(event: LoginEvent) {
+        when(event){
+            is LoginEvent.EmailChange -> {
+                loginState.value = loginState.value.copy(userName = event.value)
+            }
+            is LoginEvent.PasswordChange -> {
+                loginState.value = loginState.value.copy(userPassword = event.value)
+            }
+            is LoginEvent.LoginClick -> {
+                if (!Patterns.EMAIL_ADDRESS.matcher(loginState.value.userName).matches()) {
+                    SnackBarManager.showMessage(AppText.emailWrong)
+                }
+                viewModelScope.launch {
+                    userLogin(email, password) { exception ->
+                        if(exception != null) {
+                            SnackBarManager.showMessage(exception.toSnackBarMessage())
+                        }else event.openAndPopUp(PROFILE_SCREEN, EMAIL_LOGIN_SCREEN)
+                    }
+                }
+            }
+            is LoginEvent.SignUpClick -> {
+                event.openScreen(SIGNUP_SCREEN)
+            }
+        }
+    }
 
 }

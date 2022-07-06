@@ -1,4 +1,4 @@
-package com.devyoung.profile.data
+package com.devyoung.profile.data.data_source
 
 data class Post(
     val postNum: Int = 10,

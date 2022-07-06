@@ -1,4 +1,4 @@
-package com.devyoung.feeds.data
+package com.devyoung.feeds.data.model
 
 data class User(
     val name: String = "정진 무사시",
@@ -7,5 +7,5 @@ data class User(
 )
 
 object DummyDataProvider{
-    val userLists = List(20){User()}
+    val userLists = List(20){ User() }
 }

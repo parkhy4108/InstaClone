@@ -30,6 +30,9 @@ object Versions {
     const val skyGlide = "1.4.7"
     const val glide = "4.13.0"
 
+    //Coil
+    const val coil = "2.1.0"
+
 }
 
 object Libs {
@@ -86,5 +89,5 @@ object Libs {
         const val compiler = "com.github.bumptech.glide:compiler:${Versions.glide}"
     }
 
-
+    const val coil = "io.coil-kt:coil-compose:${Versions.coil}"
 }

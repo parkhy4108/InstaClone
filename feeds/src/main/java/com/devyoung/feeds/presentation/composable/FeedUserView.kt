@@ -16,7 +16,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.devyoung.feeds.R
-import com.devyoung.feeds.data.User
+import com.devyoung.feeds.data.model.User
 
 @Composable
 fun FeedUserView(user: User){
@@ -36,7 +36,7 @@ fun FeedUserView(user: User){
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            ProfileImg(
+            Img(
                 imgUrl = user.profileImage,
                 modifier = Modifier
                     .size(30.dp)
@@ -57,7 +57,7 @@ fun FeedUserView(user: User){
             Box(modifier = Modifier
                 .fillMaxHeight(0.8f)
             ){
-                ProfileImg(
+                Img(
                     imgUrl = user.profileImage,
                     modifier = Modifier
                         .clip(RectangleShape)

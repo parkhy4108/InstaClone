@@ -52,6 +52,7 @@ dependencies {
     api(Libs.FireBase.firestoreKTX)
 
     api(Libs.facebook)
+    api ("com.google.accompanist:accompanist-permissions:0.20.0")
 
     testImplementation(Libs.Test.Junit)
     androidTestImplementation(Libs.Test.extJunit)

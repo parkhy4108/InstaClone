@@ -18,7 +18,7 @@ import com.bumptech.glide.request.transition.Transition
 import com.devyoung.feeds.R
 
 @Composable
-fun ProfileImg(imgUrl: String, modifier: Modifier = Modifier){
+fun Img(imgUrl: String, modifier: Modifier = Modifier){
     val bitmap: MutableState<Bitmap?> = remember{ mutableStateOf(null) }
 
     Glide.with(LocalContext.current)

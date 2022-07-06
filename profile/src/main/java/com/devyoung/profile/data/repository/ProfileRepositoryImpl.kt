@@ -9,7 +9,7 @@ class ProfileRepositoryImpl @Inject constructor(
 //    private val firebase: Firebase,
 ) : ProfileRepository {
 
-    override suspend fun getUserEmail(): String? {
+    override fun getUserEmail(): String? {
         return Firebase.auth.currentUser?.email
     }
 

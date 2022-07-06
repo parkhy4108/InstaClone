@@ -22,10 +22,11 @@ fun SignUpScreen(
     openAndPopUp: (String, String)-> Unit,
     viewModel: SignUpViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.signUpState
+    val signUpState by viewModel.signUpState
 
     val isValidate by derivedStateOf {
-        uiState.userEmail.isNotBlank() && uiState.userPassword.isNotBlank()
+        signUpState.userEmail.isNotBlank() && signUpState.userPassword.isNotBlank()
+                &&signUpState.userNickName.isNotBlank()
     }
     Column(
         modifier = Modifier
@@ -38,15 +39,15 @@ fun SignUpScreen(
 
         Spacer(modifier = Modifier.height(25.dp))
 
-        UserNameField(uiState.userEmail, viewModel::onEmailChange, Modifier)
+        UserNameField(signUpState.userEmail, viewModel::onEmailChange, Modifier)
 
         Spacer(modifier = Modifier.height(18.dp))
 
-        UserPasswordField(uiState.userPassword, viewModel::onPasswordChange, Modifier)
+        UserPasswordField(signUpState.userPassword, viewModel::onPasswordChange, Modifier)
 
         Spacer(modifier = Modifier.height(18.dp))
 
-        UserNickNameField(uiState.userNickName, viewModel::onNickNameChange , Modifier)
+        UserNickNameField(signUpState.userNickName, viewModel::onNickNameChange , Modifier)
 
         Spacer(modifier = Modifier.height(18.dp))
 

@@ -1,5 +1,6 @@
 package com.devyoung.instaclone.presentation
 
+import android.Manifest
 import android.content.res.Resources
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +18,9 @@ import com.devyoung.base.snackbar.SnackBarManager
 import com.devyoung.instaclone.navigation.MainGraph
 import com.devyoung.instaclone.presentation.composable.BottomNavigationBar
 import com.devyoung.instaclone.ui.theme.InstaCloneTheme
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionState
+import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.CoroutineScope
 
 @Composable
@@ -51,7 +55,7 @@ fun InstaCloneApp() {
                 }
             ) {
                 Box(modifier = Modifier.padding(it)) {
-                    MainGraph(appState = appState, bottomBarState = bottomBarState)
+                    MainGraph(appState = appState, bottomBarState)
                 }
             }
         }

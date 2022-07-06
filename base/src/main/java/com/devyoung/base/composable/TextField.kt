@@ -14,7 +14,7 @@ import com.devyoung.base.R.drawable as AppIcon
 import com.devyoung.base.R.string as AppText
 
 @Composable
-fun UserNameField(value: String, onNewValue: (String)-> Unit, modifier: Modifier) {
+fun UserNameField(value: String, onNewValue: (String) -> Unit, modifier: Modifier) {
     TextField(
         modifier = modifier,
         value = value,
