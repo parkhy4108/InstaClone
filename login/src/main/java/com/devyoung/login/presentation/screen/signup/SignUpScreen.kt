@@ -1,5 +1,7 @@
 package com.devyoung.login.presentation.screen.signup
 
+import android.content.ContentValues.TAG
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -19,9 +21,12 @@ import com.devyoung.base.R.string as AppText
 
 @Composable
 fun SignUpScreen(
-    openAndPopUp: (String, String)-> Unit,
+    openAndPopUp: (String)-> Unit,
     viewModel: SignUpViewModel = hiltViewModel()
 ) {
+
+    Log.d(TAG, "SignUpScreen 진입")
+
     val signUpState by viewModel.signUpState
 
     val isValidate by derivedStateOf {

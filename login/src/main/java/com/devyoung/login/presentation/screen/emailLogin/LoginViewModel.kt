@@ -1,23 +1,24 @@
 package com.devyoung.login.presentation.screen.emailLogin
 
-import android.util.Patterns
-import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.devyoung.base.*
-import com.devyoung.base.snackbar.SnackBarManager
-import com.devyoung.base.snackbar.SnackBarMessage.Companion.toSnackBarMessage
-import com.devyoung.base.R.string as AppText
-import com.devyoung.login.domain.usecase.UserLogin
+
 import dagger.hilt.android.lifecycle.HiltViewModel
+import com.devyoung.login.domain.usecase.UserLogin
+import androidx.compose.runtime.mutableStateOf
+import com.devyoung.base.snackbar.SnackBarManager
+import com.devyoung.base.R.string as AppText
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.devyoung.base.*
+
+import android.util.Log
+import android.util.Patterns
+import android.content.ContentValues.TAG
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val userLogin: UserLogin,
-//    private val linkAccount: LinkAccount
-) : ViewModel() {
+    private val userLogin: UserLogin
+) : InstaViewModel() {
 
     var loginState = mutableStateOf(LoginState())
         private set
@@ -33,50 +34,30 @@ class LoginViewModel @Inject constructor(
         loginState.value = loginState.value.copy(userPassword = newValue)
     }
 
-    fun onLoginClick(openAndPopUp:(String, String)-> Unit) {
+
+
+    fun onLoginClick(openAndPopUp:(String)-> Unit) {
+
         if (!Patterns.EMAIL_ADDRESS.matcher(loginState.value.userName).matches()) {
             SnackBarManager.showMessage(AppText.emailWrong)
         }
-        viewModelScope.launch {
+
+        viewModelScope.launch(exceptionHandler) {
+            Log.d(TAG, "로그인 버튼 클릭 스코프 처리")
             userLogin(email, password) { exception ->
-                if(exception != null) {
-                    SnackBarManager.showMessage(exception.toSnackBarMessage())
-                }else openAndPopUp(PROFILE_SCREEN, EMAIL_LOGIN_SCREEN)
+                if(exception == null) {
+//                    openAndPopUp(FEED_SCREEN, LOGIN_SCREEN)
+                    openAndPopUp(HOME)
+                }else {
+                    Log.d(TAG, "스코프 Exception -> $exception")
+                    onError(exception)
+                }
             }
         }
     }
 
     fun onSignUpClick(openScreen: (String) -> Unit){
         openScreen(SIGNUP_SCREEN)
-    }
-
-
-
-
-    fun onEvent(event: LoginEvent) {
-        when(event){
-            is LoginEvent.EmailChange -> {
-                loginState.value = loginState.value.copy(userName = event.value)
-            }
-            is LoginEvent.PasswordChange -> {
-                loginState.value = loginState.value.copy(userPassword = event.value)
-            }
-            is LoginEvent.LoginClick -> {
-                if (!Patterns.EMAIL_ADDRESS.matcher(loginState.value.userName).matches()) {
-                    SnackBarManager.showMessage(AppText.emailWrong)
-                }
-                viewModelScope.launch {
-                    userLogin(email, password) { exception ->
-                        if(exception != null) {
-                            SnackBarManager.showMessage(exception.toSnackBarMessage())
-                        }else event.openAndPopUp(PROFILE_SCREEN, EMAIL_LOGIN_SCREEN)
-                    }
-                }
-            }
-            is LoginEvent.SignUpClick -> {
-                event.openScreen(SIGNUP_SCREEN)
-            }
-        }
     }
 
 }

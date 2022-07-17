@@ -14,25 +14,25 @@ import com.devyoung.feeds.data.model.User
 
 @Composable
 fun StoryUserView(user: User){
-    Column(
-        modifier = Modifier
-            .size(80.dp,100.dp),
-        verticalArrangement = Arrangement.SpaceEvenly,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Img(
-            imgUrl = user.profileImage,
-            modifier = Modifier
-                .clip(CircleShape)
-                .size(55.dp)
-        )
-        Text(
-            modifier =Modifier
-                .padding(0.dp,5.dp,0.dp,0.dp),
-            text = user.name,
-            fontSize = 10.sp,
-            textAlign = TextAlign.Center
-        )
-
-    }
+//    Column(
+//        modifier = Modifier
+//            .size(80.dp,100.dp),
+//        verticalArrangement = Arrangement.SpaceEvenly,
+//        horizontalAlignment = Alignment.CenterHorizontally
+//    ) {
+//        Img(
+//            imgUrl = user.profileImage,
+//            modifier = Modifier
+//                .clip(CircleShape)
+//                .size(55.dp)
+//        )
+//        Text(
+//            modifier =Modifier
+//                .padding(0.dp,5.dp,0.dp,0.dp),
+//            text = user.name,
+//            fontSize = 10.sp,
+//            textAlign = TextAlign.Center
+//        )
+//
+//    }
 }

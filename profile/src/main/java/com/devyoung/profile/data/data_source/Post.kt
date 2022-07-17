@@ -1,9 +1,14 @@
 package com.devyoung.profile.data.data_source
 
+import android.net.Uri
+
 data class Post(
-    val postNum: Int = 10,
-    val postId: String = "min",
-    val postImage: String = "https://randomuser.me/api/portraits/men/15.jpg",
-//    val comments: List<String>,
-    val like: Int = 140
+//    val postId: String="",
+    val postImg: Uri? = null,
+//    val userId: String="",
+//    val date: String="",
+//    val time: String="",
+//    val comments: String?="",
+//    val like: Int = 0,
 )
+

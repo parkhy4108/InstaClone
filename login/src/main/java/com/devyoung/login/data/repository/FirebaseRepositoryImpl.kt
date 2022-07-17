@@ -1,5 +1,7 @@
 package com.devyoung.login.data.repository
 
+import android.content.ContentValues.TAG
+import android.util.Log
 import com.devyoung.login.domain.repository.FirebaseRepository
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
@@ -9,21 +11,18 @@ import javax.inject.Inject
 
 class FirebaseRepositoryImpl @Inject constructor() : FirebaseRepository {
 
-    override suspend fun getCurrentUser(): FirebaseUser? {
-        return Firebase.auth.currentUser
+    override fun hasUser(): Boolean {
+        return Firebase.auth.currentUser != null
     }
 
-//    override suspend fun getFacebookToken() {
-//        val callbackManager = CallbackManager.Factory.create()
-//
-//    }
-
-    override suspend fun userLogin(email: String, password: String, onResult: (Throwable?) -> Unit) {
+    override fun userLogin(email: String, password: String, onResult: (Throwable?) -> Unit) {
         Firebase.auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener { onResult(it.exception) }
+            .addOnCompleteListener {
+                onResult(it.exception)
+            }
     }
 
-    override suspend fun userSignUp(email: String, password: String, onResult: (Throwable?) -> Unit) {
+    override fun userSignUp(email: String, password: String, onResult: (Throwable?) -> Unit) {
         Firebase.auth.createUserWithEmailAndPassword(email,password)
             .addOnCompleteListener { onResult(it.exception) }
     }

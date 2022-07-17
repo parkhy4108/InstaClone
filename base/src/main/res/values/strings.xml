@@ -10,8 +10,9 @@
     <string name="profileScreen">Profile</string>
     <string name="facebookLoginScreen">Facebook Login</string>
     <string name="error">Something wrong happened. Please try again.</string>
+    <string name="loginSuccess">환영합니다</string>
     <string name="signupSuccess">회원가입에 성공하셨습니다.</string>
-    <string name="emailWrong">이메일을 다시 입력해주시기 바랍니다</string>
+    <string name="emailWrong">올바른 이메일 형식이 아닙니다.</string>
     <string name="passwordWrong">패스워드를 확인해주시기 바랍니다.</string>
     <string name="facebook_app_id">CloneAppPractice</string>
     <string name="fb_login_protocol_scheme">fbCloneAppPractice</string>

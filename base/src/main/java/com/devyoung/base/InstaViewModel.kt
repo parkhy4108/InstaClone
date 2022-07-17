@@ -1,5 +1,7 @@
 package com.devyoung.base
 
+import android.content.ContentValues.TAG
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.devyoung.base.snackbar.SnackBarManager
 import com.devyoung.base.snackbar.SnackBarMessage.Companion.toSnackBarMessage
@@ -11,8 +13,10 @@ open class InstaViewModel : ViewModel() {
         onError(throwable)
     }
 
-    open fun onError(error: Throwable){
+    open fun onError(error: Throwable) {
+        Log.d(TAG, "onError: $error")
         SnackBarManager.showMessage(error.toSnackBarMessage())
+
     }
 
 

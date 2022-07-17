@@ -3,6 +3,6 @@ package com.devyoung.feeds.presentation.screen.post
 import android.net.Uri
 
 data class PostState(
-    var imageUrl: String = "",
+    val imageUrl: Uri? = null,
     val comments: String = ""
 )

@@ -14,7 +14,6 @@ dependencyResolutionManagement {
 }
 rootProject.name = "InstaClone"
 include (":app")
-include(":domain")
 include(":login")
 include(":feeds")
 include(":profile")

@@ -8,7 +8,7 @@ import javax.inject.Inject
 
 class FirestoreRepositoryImpl @Inject constructor() : FirestoreRepository
 {
-    override suspend fun saveUserInfo(
+    override fun saveUserInfo(
         user: User,
         onResult: (Throwable?) -> Unit
     ) {

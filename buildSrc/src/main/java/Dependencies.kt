@@ -79,6 +79,10 @@ object Libs {
         const val auth = "com.google.firebase:firebase-auth"
         const val authKTX = "com.google.firebase:firebase-auth-ktx"
         const val firestoreKTX = "com.google.firebase:firebase-firestore-ktx"
+        const val storageKTX = "com.google.firebase:firebase-storage-ktx"
+        const val component1 = "com.google.firebase.storage.ktx.component1"
+        const val component2 = "com.google.firebase.storage.ktx.component2"
+        const val uiStorage = "com.firebaseui:firebase-ui-storage:7.2.0"
     }
 
     const val facebook = "com.facebook.android:facebook-login:latest.release"

@@ -69,3 +69,15 @@ fun UserNickNameField(value: String, onNewValue: (String)-> Unit, modifier: Modi
         placeholder = { Text(text = stringResource(id = AppText.nickname))}
     )
 }
+
+@Composable
+fun CommentsField(value: String, onNewValue: (String) -> Unit, modifier: Modifier){
+    OutlinedTextField(
+        modifier=modifier,
+        value = value,
+        onValueChange = { onNewValue(it) },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+        colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.White),
+        placeholder = { Text(text = "문구 입력...") }
+    )
+}

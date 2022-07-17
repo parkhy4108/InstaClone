@@ -42,7 +42,7 @@ android {
 
 dependencies {
 
-    implementation(project(":domain"))
+
     implementation(project(":base"))
 
 //    implementation (Libs.coreKTX)
@@ -61,7 +61,7 @@ dependencies {
 
     //Glide
     implementation(Libs.Glide.glide)
-    annotationProcessor(Libs.Glide.compiler)
+    kapt(Libs.Glide.compiler)
 
     testImplementation (Libs.Test.Junit)
     androidTestImplementation (Libs.Test.extJunit)

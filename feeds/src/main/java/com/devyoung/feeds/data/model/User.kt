@@ -1,11 +1,10 @@
 package com.devyoung.feeds.data.model
 
 data class User(
-    val name: String = "정진 무사시",
-    val description: String = "오늘도 정진! 항상 한걸음 나아가는 사람이 되자!",
-    val profileImage : String = "https://randomuser.me/api/portraits/men/15.jpg"
+    val userId: String= "",
+    val userImage: String= "",
+    val userNickName: String= "",
+    val follower: Int = 0,
+    val following: Int = 0,
+    val postNum : Int = 0
 )
-
-object DummyDataProvider{
-    val userLists = List(20){ User() }
-}

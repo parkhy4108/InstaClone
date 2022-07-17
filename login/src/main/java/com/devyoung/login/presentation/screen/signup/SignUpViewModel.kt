@@ -2,10 +2,7 @@ package com.devyoung.login.presentation.screen.signup
 
 import androidx.compose.runtime.*
 import androidx.lifecycle.viewModelScope
-import com.devyoung.base.FEED_SCREEN
-import com.devyoung.base.InstaViewModel
-import com.devyoung.base.PROFILE_SCREEN
-import com.devyoung.base.SIGNUP_SCREEN
+import com.devyoung.base.*
 import com.devyoung.base.snackbar.SnackBarManager
 import com.devyoung.login.data.User
 import com.devyoung.login.domain.usecase.SaveUserInfo
@@ -45,7 +42,7 @@ class SignUpViewModel @Inject constructor(
         signUpState.value = signUpState.value.copy(userNickName = newValue)
     }
 
-    fun onSignUpClick(openAndPopUp: (String, String) -> Unit){
+    fun onSignUpClick(openAndPopUp: (String) -> Unit){
         viewModelScope.launch(exceptionHandler) {
             userSignUp(email, password) { exception ->
                 if(exception == null) {
@@ -55,7 +52,7 @@ class SignUpViewModel @Inject constructor(
         }
     }
 
-    private fun saveUser(openAndPopUp: (String, String) -> Unit) {
+    private fun saveUser(openAndPopUp: (String) -> Unit) {
         viewModelScope.launch(exceptionHandler) {
             saveUserInfo(
                 user = User(
@@ -69,7 +66,7 @@ class SignUpViewModel @Inject constructor(
             ) { exception ->
                 if(exception == null){
                     SnackBarManager.showMessage(AppText.signupSuccess)
-                    openAndPopUp(PROFILE_SCREEN, SIGNUP_SCREEN)
+                    openAndPopUp(HOME)
                 }else onError(exception)
             }
         }

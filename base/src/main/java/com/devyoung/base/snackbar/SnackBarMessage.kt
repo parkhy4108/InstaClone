@@ -1,6 +1,8 @@
 package com.devyoung.base.snackbar
 
+import android.content.ContentValues.TAG
 import android.content.res.Resources
+import android.util.Log
 import androidx.annotation.StringRes
 import com.devyoung.base.R
 
@@ -18,6 +20,7 @@ sealed class SnackBarMessage {
 
         fun Throwable.toSnackBarMessage(): SnackBarMessage {
             val message = this.message.orEmpty()
+            Log.d(TAG, "message toSnackBarMessage: $message")
             return if (message.isNotBlank()) StringSnackBar(message)
             else ResourceSnackBar(R.string.error)
         }

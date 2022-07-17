@@ -12,46 +12,46 @@ import com.devyoung.profile.data.data_source.User
 
 @Composable
 fun UserSection(user : User){
-    Row(
+    Column (
         modifier = Modifier
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceEvenly
-    ) {
-        Column(
+            .fillMaxWidth()
+    ){
+        Row(
             modifier = Modifier
-                .padding(5.dp, 0.dp, 15.dp, 5.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Card(
-                shape = CircleShape,
+            ProfileImg(imgUrl = user.userImage)
+            Column(
                 modifier = Modifier
+                    .padding(5.dp, 10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                ProfileImg(imgUrl = user.userImage)
+                Text(text = "${user.postNum}")
+                Text(text = "게시물")
             }
-            Text(text = user.nickName)
+            Column(
+                modifier = Modifier
+                    .padding(5.dp, 10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(text = "${user.follower}")
+                Text(text = "팔로워")
+            }
+            Column(
+                modifier = Modifier
+                    .padding(5.dp, 10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(text = "${user.following}")
+                Text(text = "팔로잉")
+            }
         }
-        Column(
-            modifier = Modifier
-                .padding(5.dp, 10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(text = "${user.postNum}")
-            Text(text = "게시물")
-        }
-        Column(
-            modifier = Modifier
-                .padding(5.dp, 10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(text = "${user.follower}")
-            Text(text = "팔로워")
-        }
-        Column(
-            modifier = Modifier
-                .padding(5.dp, 10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(text = "${user.following}")
-            Text(text = "팔로잉")
-        }
+        Text(
+            modifier = Modifier.padding(14.dp, 2.dp),
+            text = user.userNickName)
     }
+
 }
+
