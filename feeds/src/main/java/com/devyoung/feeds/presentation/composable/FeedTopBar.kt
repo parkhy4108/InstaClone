@@ -23,7 +23,8 @@ fun FeedTopBar(
     text: String,
     backgroundColor: Color,
     elevation: Dp,
-    onAddButtonClick: ()->Unit,
+    onAddButtonClick: () -> Unit,
+    onHeartButtonClick: () -> Unit
 ){
     TopAppBar(
         modifier = Modifier
@@ -59,7 +60,7 @@ fun FeedTopBar(
                         painter = painterResource(id = AppImg.ic_add),
                         contentDescription = null)
                 }
-                IconButton(onClick = { onAddButtonClick() }) {
+                IconButton(onClick = { onHeartButtonClick() }) {
                     Icon(
                         modifier = Modifier
                             .then(Modifier.size(30.dp)),

@@ -4,7 +4,6 @@ package com.devyoung.login.presentation.screen.emailLogin
 import dagger.hilt.android.lifecycle.HiltViewModel
 import com.devyoung.login.domain.usecase.UserLogin
 import androidx.compose.runtime.mutableStateOf
-import com.devyoung.base.snackbar.SnackBarManager
 import com.devyoung.base.R.string as AppText
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
@@ -14,6 +13,10 @@ import com.devyoung.base.*
 import android.util.Log
 import android.util.Patterns
 import android.content.ContentValues.TAG
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+import androidx.compose.material.Snackbar
+import androidx.compose.material.SnackbarDuration
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
@@ -36,28 +39,24 @@ class LoginViewModel @Inject constructor(
 
 
 
-    fun onLoginClick(openAndPopUp:(String)-> Unit) {
+    fun onLoginClick(openAndPopUp:(String, String)-> Unit) {
 
         if (!Patterns.EMAIL_ADDRESS.matcher(loginState.value.userName).matches()) {
-            SnackBarManager.showMessage(AppText.emailWrong)
+            SnackbarManager.showMessage(AppText.emailWrong)
         }
-
         viewModelScope.launch(exceptionHandler) {
-            Log.d(TAG, "로그인 버튼 클릭 스코프 처리")
-            userLogin(email, password) { exception ->
-                if(exception == null) {
-//                    openAndPopUp(FEED_SCREEN, LOGIN_SCREEN)
-                    openAndPopUp(HOME)
+            userLogin(email, password) { error ->
+                if(error == null) {
+                    openAndPopUp(Screen.Home.route, Screen.Login.route)
                 }else {
-                    Log.d(TAG, "스코프 Exception -> $exception")
-                    onError(exception)
+                    onError(error)
                 }
             }
         }
     }
 
     fun onSignUpClick(openScreen: (String) -> Unit){
-        openScreen(SIGNUP_SCREEN)
+        openScreen(Screen.SignUp.route)
     }
 
 }

@@ -1,12 +1,12 @@
 package com.devyoung.feeds.domain.usecase
 
-import com.devyoung.feeds.domain.reposiroty.FirestoreRepository
+import com.devyoung.feeds.domain.reposiroty.FirebaseRepository
 import javax.inject.Inject
 
 class UpdatePostNum @Inject constructor(
-    private val repository: FirestoreRepository
+    private val repository: FirebaseRepository
 ) {
-    suspend operator fun invoke(userEmail: String, onResult: (Throwable?)-> Unit) {
-        return repository.updatePostNum(userEmail, onResult)
+    suspend operator fun invoke(onResult: (Throwable?)-> Unit) {
+        return repository.updatePostNum(onResult)
     }
 }

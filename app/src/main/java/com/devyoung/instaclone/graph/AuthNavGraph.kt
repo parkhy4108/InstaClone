@@ -1,45 +1,28 @@
 package com.devyoung.instaclone.graph
 
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.devyoung.base.AUTHENTICATION
-import com.devyoung.instaclone.presentation.composable.BottomBarScreen
+import com.devyoung.base.Screen
+import com.devyoung.instaclone.presentation.AppState
 import com.devyoung.login.presentation.screen.emailLogin.LoginScreen
 import com.devyoung.login.presentation.screen.signup.SignUpScreen
 
-fun NavGraphBuilder.authNavGraph(navController: NavHostController){
+fun NavGraphBuilder.authNavGraph(appState: AppState){
     navigation(
-        route = AUTHENTICATION,
-        startDestination = AuthScreen.Login.route
+        route = Screen.Authentication.route,
+        startDestination = Screen.Login.route
     ){
-        composable(route = AuthScreen.Login.route){
+        composable(route = Screen.Login.route){
             LoginScreen(
-//                openAndPopUp = { appState.navigateAndPopUp(Graph.HOME, AuthScreen.Login.route) },
-//                openScreen = { appState.navigate(AuthScreen.SignUp.route) })
-
-                openScreen = { navController.navigate(AuthScreen.SignUp.route) },
-                openAndPopUp = {
-                    navController.popBackStack()
-//                    navController.navigate(Graph.HOME)
-                    navController.navigate(BottomBarScreen.Feed.route)
-
-                }
+                openScreen = { route -> appState.navController.navigate(route) },
+                openAndPopUp = { route, popUp -> appState.navigateAndPopUp(route, popUp) }
             )
         }
-        composable(route = AuthScreen.SignUp.route){
+        composable(route = Screen.SignUp.route){
             SignUpScreen(
-                openAndPopUp = {
-                    navController.popBackStack()
-                    navController.navigate(BottomBarScreen.Feed.route)
-                }
+                openAndPopUp = { route , popUp -> appState.navigateAndPopUp(route, popUp)}
             )
         }
     }
-}
-
-sealed class AuthScreen(val route: String) {
-    object Login : AuthScreen(route = "LOGIN")
-    object SignUp : AuthScreen(route = "SIGN_UP")
 }

@@ -6,11 +6,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.devyoung.feeds.data.model.User
 
-@Composable
-fun StoryList(user: List<User>){
-    LazyRow(modifier = Modifier){
-        items(user){
-            StoryUserView(user = it)
-        }
-    }
-}
+//@Composable
+//fun StoryList(user: List<User>){
+//    LazyRow(modifier = Modifier){
+//        items(user){
+//            StoryUserView(user = it)
+//        }
+//    }
+//}

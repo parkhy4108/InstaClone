@@ -6,7 +6,7 @@ import javax.inject.Inject
 class GetUserEmail @Inject constructor(
     private val repository: FirebaseRepository
 ){
-    suspend operator fun invoke() : String {
+    suspend operator fun invoke() : String? {
         return repository.getUserEmail()
     }
 }

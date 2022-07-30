@@ -26,6 +26,7 @@ fun BottomNavigationBar(
 ){
     val screens = listOf(
         BottomBarScreen.Feed,
+        BottomBarScreen.Search,
         BottomBarScreen.Profile
     )
 
@@ -73,8 +74,8 @@ fun RowScope.AddItem(
         unselectedContentColor = LocalContentColor.current.copy(alpha = ContentAlpha.disabled),
         onClick = {
             navController.navigate(screen.route) {
-                popUpTo(navController.graph.findStartDestination().id){
-                    saveState = true
+                navController.graph.startDestinationRoute?.let {
+                    popUpTo(it) { saveState = true }
                 }
                 launchSingleTop = true
                 restoreState = true

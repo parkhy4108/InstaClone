@@ -3,15 +3,12 @@ package com.devyoung.login.presentation.screen.signup
 import androidx.compose.runtime.*
 import androidx.lifecycle.viewModelScope
 import com.devyoung.base.*
-import com.devyoung.base.snackbar.SnackBarManager
 import com.devyoung.login.data.User
 import com.devyoung.login.domain.usecase.SaveUserInfo
 import com.devyoung.login.domain.usecase.UserSignUp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import com.devyoung.base.R.string as AppText
-
 
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
@@ -42,7 +39,7 @@ class SignUpViewModel @Inject constructor(
         signUpState.value = signUpState.value.copy(userNickName = newValue)
     }
 
-    fun onSignUpClick(openAndPopUp: (String) -> Unit){
+    fun onSignUpClick(openAndPopUp: (String, String) -> Unit){
         viewModelScope.launch(exceptionHandler) {
             userSignUp(email, password) { exception ->
                 if(exception == null) {
@@ -52,11 +49,11 @@ class SignUpViewModel @Inject constructor(
         }
     }
 
-    private fun saveUser(openAndPopUp: (String) -> Unit) {
+    private fun saveUser(openAndPopUp: (String, String) -> Unit) {
         viewModelScope.launch(exceptionHandler) {
             saveUserInfo(
                 user = User(
-                    userId = email,
+                    userEmail = email,
                     userImage = "",
                     userNickName = nickName,
                     follower = 0,
@@ -65,8 +62,7 @@ class SignUpViewModel @Inject constructor(
                 )
             ) { exception ->
                 if(exception == null){
-                    SnackBarManager.showMessage(AppText.signupSuccess)
-                    openAndPopUp(HOME)
+                    openAndPopUp(Screen.Home.route, Screen.SignUp.route)
                 }else onError(exception)
             }
         }

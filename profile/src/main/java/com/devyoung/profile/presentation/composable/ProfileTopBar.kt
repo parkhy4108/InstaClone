@@ -43,7 +43,5 @@ fun ProfileTopBar(
                 Text(text = "로그아웃", color = Color.Black)
             }
         }
-
-
     }
 }

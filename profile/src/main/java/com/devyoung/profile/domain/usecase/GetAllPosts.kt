@@ -12,7 +12,7 @@ import javax.inject.Inject
 class GetAllPosts @Inject constructor(
     private val repository : FirestoreRepository
 ) {
-    suspend operator fun invoke(userEmail: String, onError:(Throwable)->Unit, onSuccess: (ListResult) -> Unit )   {
-        return repository.getAllPosts(userEmail, onError, onSuccess)
+    suspend operator fun invoke(onError:(Throwable)->Unit, onSuccess: (ArrayList<String>) -> Unit )   {
+        return repository.getAllPosts(onError, onSuccess)
     }
 }

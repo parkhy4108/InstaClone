@@ -13,7 +13,7 @@ class FirestoreRepositoryImpl @Inject constructor() : FirestoreRepository
         onResult: (Throwable?) -> Unit
     ) {
         Firebase.firestore
-            .collection(user.userId).document("userInfo")
+            .collection(user.userEmail).document("userInfo")
             .set(user)
             .addOnCompleteListener { onResult(it.exception) }
     }

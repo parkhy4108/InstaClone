@@ -9,25 +9,13 @@ import javax.inject.Inject
 
 class FirebaseRepositoryImpl @Inject constructor() : FirebaseRepository {
 
-    override suspend fun getUserEmail(): String {
-        var email = Firebase.auth.currentUser?.email
-        if (email == null) {
-            Log.d("TAG", "getUserEmail: error")
-            email = ""
-        }
-        return email
+    override suspend fun getUserEmail(): String? {
+        return Firebase.auth.currentUser?.email
     }
 
     override suspend fun userLogOut() {
         Firebase.auth.signOut()
     }
 
-    override suspend fun getFollowerById(userEmail: String): List<User> {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun getFollowingById(userEmail: String): List<User> {
-        TODO("Not yet implemented")
-    }
 
 }

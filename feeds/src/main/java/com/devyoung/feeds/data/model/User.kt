@@ -1,7 +1,7 @@
 package com.devyoung.feeds.data.model
 
 data class User(
-    val userId: String= "",
+    val userEmail: String= "",
     val userImage: String= "",
     val userNickName: String= "",
     val follower: Int = 0,

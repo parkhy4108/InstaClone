@@ -2,9 +2,10 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("dagger.hilt.android.plugin")
-    id("kotlin-kapt")
     id("com.google.gms.google-services")
+    id("kotlin-kapt")
 }
+
 android {
     compileSdk = AppConfig.compileSdk
     defaultConfig {
@@ -51,12 +52,8 @@ dependencies {
     implementation(project(":feeds"))
     implementation(project(":login"))
     implementation(project(":profile"))
-//    implementation (Libs.coreKTX)
-//    implementation (Libs.Compose.ui)
-//    implementation (Libs.Compose.material)
-//    implementation (Libs.Compose.preview)
-//    implementation (Libs.lifecycleRuntime)
-//    implementation (Libs.activityCompose)
+    implementation(project(":search"))
+
     //Hilt
     implementation(Libs.Hilt.hiltAndroid)
     implementation(Libs.Hilt.navigationCompiler)

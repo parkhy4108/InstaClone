@@ -4,5 +4,6 @@ import android.graphics.Bitmap
 import android.net.Uri
 
 data class FeedState(
-    val email: String = ""
+    val email: String = "",
+
 )

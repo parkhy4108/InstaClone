@@ -13,16 +13,12 @@ import javax.inject.Inject
 class FirstViewModel @Inject constructor(
     private val hasUser: HasUser,
 ) : InstaViewModel() {
-    fun appStart(openAndPopUp: (String)-> Unit){
-        Log.d(TAG, "appStart")
+    fun appStart(openAndPopUp: (String, String)-> Unit){
         if(hasUser()) {
-            Log.d(TAG, "현재 회원 있음")
-            openAndPopUp(HOME)
-
+            openAndPopUp(Screen.Home.route, Screen.First.route)
         }
         else {
-            Log.d(TAG, "현재 회원 없음")
-            openAndPopUp(AUTHENTICATION)
+            openAndPopUp(Screen.Authentication.route, Screen.First.route)
         }
     }
 }

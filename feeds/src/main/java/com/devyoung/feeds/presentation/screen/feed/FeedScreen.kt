@@ -20,6 +20,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 
 import com.skydoves.landscapist.glide.GlideImage
@@ -32,7 +33,7 @@ fun FeedScreen(
     openScreen: (String) -> Unit,
     viewModel: FeedViewModel = hiltViewModel()
 ) {
-    val feedState by viewModel.feedState
+//    val feedState by viewModel.feedState
 
     val configuration = LocalConfiguration.current
 
@@ -48,7 +49,8 @@ fun FeedScreen(
             text = "InstaClone",
             backgroundColor = Color.White,
             elevation = 0.dp,
-            onAddButtonClick = { viewModel.onPostAddClick(openScreen) }
+            onAddButtonClick = { viewModel.onPostAddClick(openScreen) },
+            onHeartButtonClick = { viewModel.onHeartClick(openScreen)}
         )
         LazyColumn(
             modifier = Modifier
@@ -57,7 +59,8 @@ fun FeedScreen(
                 val story = false
                 if(story){
 //                    StoryList(user = dumData)
-                } else {
+                }
+                else {
                     Column(
                         modifier = Modifier
                             .fillMaxSize(),
@@ -65,8 +68,8 @@ fun FeedScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Spacer(modifier = Modifier.height(30.dp))
-                        Text(text = "Instaclone에 오신 것을", fontSize = 22.sp , fontWeight = FontWeight.Bold)
-                        Text(text = "환영합니다", fontSize = 22.sp , fontWeight = FontWeight.Bold)
+                        Text(text = "Instaclone에 오신 것을\r\n환영합니다", fontSize = 22.sp , fontWeight = FontWeight.Bold)
+//                        Text(text = "환영합니다", fontSize = 22.sp , fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(14.dp))
                         Text(text = "사진과 동영상을 보고 싶은 사람을 팔로우해보세요." , fontSize = 13.sp)
 
@@ -170,7 +173,6 @@ fun FeedScreen(
                                                 color = Color.White,
                                             )
                                         }
-
                                         Spacer(modifier = Modifier.height(8.dp))
                                     }
                                 }
@@ -198,6 +200,12 @@ fun FeedScreen(
     }
 
 
+
+}
+
+@Preview
+@Composable
+fun FeedPreview() {
 
 }
 

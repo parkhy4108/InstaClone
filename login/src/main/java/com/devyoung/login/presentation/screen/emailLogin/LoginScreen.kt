@@ -11,24 +11,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.runtime.*
 
-import com.devyoung.base.composable.UserPasswordField
-import com.devyoung.base.composable.BasicTextButton
-import com.devyoung.base.composable.UserNameField
+import com.devyoung.login.presentation.screen.composable.UserPasswordField
+import com.devyoung.login.presentation.screen.composable.BasicTextButton
+import com.devyoung.login.presentation.screen.composable.UserNameField
 import com.devyoung.base.R.string as AppText
-
-import android.content.ContentValues.TAG
-import android.util.Log
 
 
 @Composable
 fun LoginScreen(
-    openAndPopUp: (String) -> Unit,
-//    clearAndNavigate: (String) -> Unit,
-
+    openAndPopUp: (String, String) -> Unit,
     openScreen: (String) -> Unit,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
-    Log.d(TAG, "LoginScreen 진입")
 
     val uiState by viewModel.loginState
 

@@ -1,4 +1,4 @@
-package com.devyoung.base.composable
+package com.devyoung.login.presentation.screen.composable
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.shape.RoundedCornerShape

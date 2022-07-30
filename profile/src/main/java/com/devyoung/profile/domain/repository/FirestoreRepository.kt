@@ -9,6 +9,7 @@ import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.flow.Flow
 
 interface FirestoreRepository {
-    suspend fun getUserInfo(userEmail: String, onError: (Throwable)-> Unit, onSuccess: (User)-> Unit )
-    suspend fun getAllPosts(userEmail: String, onError: (Throwable) -> Unit, onSuccess: (ListResult) -> Unit)
+    suspend fun getUserInfo(onError: (Throwable)-> Unit, onSuccess: (User)-> Unit )
+    suspend fun getAllPosts(onError: (Throwable) -> Unit, onSuccess: (ArrayList<String>) -> Unit)
+
 }

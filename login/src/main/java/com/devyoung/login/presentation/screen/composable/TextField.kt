@@ -1,4 +1,4 @@
-package com.devyoung.base.composable
+package com.devyoung.login.presentation.screen.composable
 
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -43,6 +43,7 @@ fun UserPasswordField(
     else PasswordVisualTransformation()
 
     TextField(
+        modifier = modifier,
         value = value,
         onValueChange ={onNewValue(it)},
         placeholder = { Text(text = stringResource(id = AppText.password))},

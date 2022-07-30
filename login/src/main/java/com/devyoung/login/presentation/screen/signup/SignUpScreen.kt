@@ -13,15 +13,15 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.devyoung.base.composable.BasicTextButton
-import com.devyoung.base.composable.UserNameField
-import com.devyoung.base.composable.UserNickNameField
-import com.devyoung.base.composable.UserPasswordField
+import com.devyoung.login.presentation.screen.composable.BasicTextButton
+import com.devyoung.login.presentation.screen.composable.UserNameField
+import com.devyoung.login.presentation.screen.composable.UserNickNameField
+import com.devyoung.login.presentation.screen.composable.UserPasswordField
 import com.devyoung.base.R.string as AppText
 
 @Composable
 fun SignUpScreen(
-    openAndPopUp: (String)-> Unit,
+    openAndPopUp: (String, String)-> Unit,
     viewModel: SignUpViewModel = hiltViewModel()
 ) {
 

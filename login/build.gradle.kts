@@ -44,16 +44,11 @@ android {
 }
 
 dependencies {
-
     implementation(project(":base"))
-//    implementation(project(":app"))
-
-
     //Hilt
     implementation(Libs.Hilt.hiltAndroid)
     implementation(Libs.Hilt.navigationCompiler)
     kapt(Libs.Hilt.hiltCompiler)
-
     testImplementation (Libs.Test.Junit)
     androidTestImplementation (Libs.Test.extJunit)
     androidTestImplementation (Libs.Test.espresso)

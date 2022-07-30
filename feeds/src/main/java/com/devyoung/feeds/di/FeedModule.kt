@@ -1,10 +1,9 @@
 package com.devyoung.feeds.di
 
 import com.devyoung.feeds.data.repository.FirebaseRepositoryImpl
-import com.devyoung.feeds.data.repository.FirestoreRepositoryImpl
 import com.devyoung.feeds.domain.reposiroty.FirebaseRepository
-import com.devyoung.feeds.domain.reposiroty.FirestoreRepository
 import com.devyoung.feeds.domain.usecase.*
+import com.google.firebase.ktx.Firebase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,18 +18,24 @@ object FeedModule {
     @Singleton
     fun provideFirebaseRepository(): FirebaseRepository = FirebaseRepositoryImpl()
 
-    @Provides
-    @Singleton
-    fun provideFirestoreRepository(): FirestoreRepository = FirestoreRepositoryImpl()
 
     @Provides
     @Singleton
-    fun provideUseCases(firebaseRepository: FirebaseRepository, firestoreRepository: FirestoreRepository): FeedUseCases {
-        return FeedUseCases(
-            savePost = SavePost(firestoreRepository),
+    fun provideUseCases(firebaseRepository: FirebaseRepository): UseCases {
+        return UseCases(
+            checkFollowerList = CheckFollowerList(firebaseRepository),
+            checkRequest = CheckRequest(firebaseRepository),
+            deleteRequest = DeleteRequest(firebaseRepository),
+            deleteWaitingList = DeleteWaitingList(firebaseRepository),
+            getRequest = GetRequest(firebaseRepository),
             getUserEmail = GetUserEmail(firebaseRepository),
-            updatePostNum = UpdatePostNum(firestoreRepository),
-            uploadFile = UploadFile(firestoreRepository)
+            savePost = SavePost(firebaseRepository),
+            sendFollowRequest = SendFollowRequest(firebaseRepository),
+            updateFollower = UpdateFollower(firebaseRepository),
+            updateFollowing = UpdateFollowing(firebaseRepository),
+            updateFollowWaitingList = UpdateFollowWaitingList(firebaseRepository),
+            updatePostNum = UpdatePostNum(firebaseRepository),
+            uploadFile = UploadFile(firebaseRepository)
         )
     }
 }

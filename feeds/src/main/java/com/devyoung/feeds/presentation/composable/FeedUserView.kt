@@ -18,8 +18,8 @@ import androidx.compose.ui.unit.dp
 import com.devyoung.feeds.R
 import com.devyoung.feeds.data.model.User
 
-@Composable
-fun FeedUserView(user: User){
+//@Composable
+//fun FeedUserView(user: User){
 //    val shouldLikeIconChange = remember {
 //        mutableStateOf(false)
 //    }
@@ -95,6 +95,6 @@ fun FeedUserView(user: User){
 //        }
 //
 //    }
-}
+//}
 
 

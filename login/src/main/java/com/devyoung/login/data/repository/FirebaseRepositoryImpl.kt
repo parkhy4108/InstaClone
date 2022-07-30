@@ -12,6 +12,7 @@ import javax.inject.Inject
 class FirebaseRepositoryImpl @Inject constructor() : FirebaseRepository {
 
     override fun hasUser(): Boolean {
+        Log.d(TAG, "hasUser: ${Firebase.auth.currentUser}")
         return Firebase.auth.currentUser != null
     }
 
