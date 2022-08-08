@@ -36,7 +36,6 @@ android {
     }
 }
 dependencies {
-    implementation(project(":domain"))
     api(Libs.coreKTX)
     api(Libs.Compose.ui)
     api(Libs.Compose.material)
@@ -50,6 +49,9 @@ dependencies {
     api(Libs.FireBase.auth)
     api(Libs.FireBase.authKTX)
     api(Libs.FireBase.firestoreKTX)
+    api(Libs.FireBase.storageKTX)
+    api(Libs.skydovesGlide)
+    api(Libs.coil)
 
     testImplementation(Libs.Test.Junit)
     androidTestImplementation(Libs.Test.extJunit)

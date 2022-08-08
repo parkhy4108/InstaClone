@@ -41,23 +41,14 @@ android {
 }
 
 dependencies {
-
-    implementation(project(":domain"))
     implementation(project(":base"))
-
-//    implementation (Libs.coreKTX)
-
-//    implementation (Libs.Compose.ui)
-//    implementation (Libs.Compose.material)
-//    implementation (Libs.Compose.preview)
-//    implementation (Libs.lifecycleRuntime)
-//    implementation (Libs.activityCompose)
-//
-//
     //Hilt
     implementation(Libs.Hilt.hiltAndroid)
     implementation(Libs.Hilt.navigationCompiler)
     kapt(Libs.Hilt.hiltCompiler)
+    //Glide
+    implementation(Libs.Glide.glide)
+    kapt(Libs.Glide.compiler)
 
     testImplementation (Libs.Test.Junit)
     androidTestImplementation (Libs.Test.extJunit)

@@ -26,6 +26,13 @@ object Versions {
     //Firebase
     const val firebaseBom = "30.1.0"
 
+    //Glide
+    const val skyGlide = "1.4.7"
+    const val glide = "4.13.0"
+
+    //Coil
+    const val coil = "2.1.0"
+
 }
 
 object Libs {
@@ -72,6 +79,18 @@ object Libs {
         const val auth = "com.google.firebase:firebase-auth"
         const val authKTX = "com.google.firebase:firebase-auth-ktx"
         const val firestoreKTX = "com.google.firebase:firebase-firestore-ktx"
+        const val storageKTX = "com.google.firebase:firebase-storage-ktx"
+        const val component1 = "com.google.firebase.storage.ktx.component1"
+        const val component2 = "com.google.firebase.storage.ktx.component2"
     }
 
+    const val facebook = "com.facebook.android:facebook-login:latest.release"
+    const val skydovesGlide = "com.github.skydoves:landscapist-glide:${Versions.skyGlide}"
+
+    object Glide{
+        const val glide = "com.github.bumptech.glide:glide:${Versions.glide}"
+        const val compiler = "com.github.bumptech.glide:compiler:${Versions.glide}"
+    }
+
+    const val coil = "io.coil-kt:coil-compose:${Versions.coil}"
 }

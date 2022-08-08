@@ -1,0 +1,102 @@
+package com.devyoung.feeds.presentation.screen.post
+
+import android.content.ContentValues.TAG
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.devyoung.base.composable.CircularIndicatorProgressBar
+import com.devyoung.base.composable.ImgLoad
+import com.devyoung.base.R.string as AppText
+import com.devyoung.feeds.presentation.composable.PostTopBar
+import com.skydoves.landscapist.glide.GlideImage
+
+@Composable
+fun PostScreen(
+    popUpScreen: () -> Unit,
+    viewModel: PostViewModel = hiltViewModel()
+) {
+    val postState by viewModel.postState
+
+    val focusRequester by remember { mutableStateOf(FocusRequester()) }
+    val focusManager = LocalFocusManager.current
+
+    val selectImageLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {
+            viewModel.onImageChange(it)
+        }
+
+
+    LaunchedEffect(true) {
+        selectImageLauncher.launch("image/*")
+    }
+
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .addFocusCleaner(focusManager)){
+        if(!postState.loading){
+            Column(modifier = Modifier.fillMaxSize()) {
+                PostTopBar(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(color = Color.White),
+                    text = stringResource(id = AppText.postTitle),
+                    onGalleryButtonClick = { selectImageLauncher.launch("image/*") },
+                    onAddButtonClick = { viewModel.onSavePostClick(popUpScreen) }
+                )
+                Box(modifier = Modifier.fillMaxHeight(0.6f)){
+                    GlideImage(imageModel = postState.imageUrl, modifier = Modifier.padding(8.dp))
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(text = "Comment", modifier = Modifier.padding(5.dp))
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                OutlinedTextField(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                        .padding(4.dp)
+                        .focusRequester(focusRequester)
+                        .pointerInput(Unit) {
+                            detectTapGestures(onTap = {
+                                focusManager.clearFocus()
+                            })
+                        },
+                    value = postState.comments,
+                    onValueChange = viewModel::onCommentsChange,
+                    placeholder = { Text(text = stringResource(id = AppText.postPlaceholder))}
+                )
+            }
+        }
+        CircularIndicatorProgressBar(isDisplayed = postState.loading)
+    }
+
+
+}
+
+
+fun Modifier.addFocusCleaner(focusManager: FocusManager, doOnClear: () -> Unit = {}): Modifier {
+    return this.pointerInput(Unit) {
+        detectTapGestures(onTap = {
+            doOnClear()
+            focusManager.clearFocus()
+        })
+    }
+}

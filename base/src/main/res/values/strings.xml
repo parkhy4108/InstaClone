@@ -1,46 +1,47 @@
 <resources>
-    <!-- Common -->
-    <string name="app_name">Make It So</string>
+    <string name="app_name">Firebase_compose_hilt</string>
+    <string name="EmailLoginScreen">Email Login</string>
     <string name="email">Email</string>
+    <string name="nickname">Nick Name</string>
     <string name="password">Password</string>
-    <string name="repeat_password">Repeat password</string>
-    <string name="generic_error">Something wrong happened. Please try again.</string>
-    <string name="email_error">Please insert a valid email.</string>
-    <string name="cancel">Cancel</string>
+    <string name="login">Login</string>
+    <string name="signUp">Sign Up</string>
+    <string name="InstaClone">InstaClone</string>
+    <string name="feed">Feed</string>
+    <string name="profileScreen">Profile</string>
+    <string name="facebookLoginScreen">Facebook Login</string>
+    <string name="error">Something wrong happened. Please try again.</string>
+    <string name="postTitle">게시물 작성</string>
+    <string name="postPlaceholder">문구 입력..</string>
+    <string name="loginSuccess">환영합니다</string>
+    <string name="signupSuccess">회원가입에 성공하셨습니다.</string>
+    <string name="emailWrong">올바른 이메일 형식이 아닙니다.</string>
+    <string name="passwordWrong">패스워드를 확인해주시기 바랍니다.</string>
+    <string name="postUpload">게시물이 업로드 되었습니다.</string>
+    <string name="feedDescription1">인스타클론에 오신 것을 환영합니다.</string>
+    <string name="feedDescription2">사진과 동영상을 보고싶은 사람을 팔로우해보세요.</string>
+    <string name="feedDescription3">Instaclone 추천</string>
+    <string name="profileDescription1">사진과 동영상을 공유하면 프로필에 표시됩니다.</string>
+    <string name="profileDescription2">첫 사진 동영상을 공유해보세요.</string>
+    <string name="search">검색</string>
+    <string name="myStory">내 스토리</string>
+    <string name="followUp">맞팔로우</string>
+    <string name="followRequest">팔로우 요청</string>
+    <string name="sent">요청됨</string>
+    <string name="okay">확인</string>
+    <string name="delete">삭제</string>
+    <string name="follow">팔로우</string>
+    <string name="follower">팔로워</string>
+    <string name="following">팔로잉</string>
+    <string name="post">게시물</string>
+    <string name="profile">프로필</string>
+    <string name="profileEdit">프로필 편집</string>
+    <string name="dialog">팔로우를 취소하시겠습니까?</string>
+    <string name="confirm">확인</string>
+    <string name="dismiss">취소</string>
 
-    <!-- LoginScreen -->
-    <string name="sign_in">Sign in</string>
-    <string name="login_details">Enter your login details</string>
-    <string name="forgot_password">Forgot password? Click to get recovery email</string>
-    <string name="recovery_email_sent">Check your inbox for the recovery email.</string>
-    <string name="empty_password_error">Password cannot be empty.</string>
 
-    <!-- SignUpScreen -->
-    <string name="create_account">Create account</string>
-    <string name="password_error">Your password should have at least six digits and include one digit, one lower case letter and one upper case letter.</string>
-    <string name="password_match_error">Passwords do not match.</string>
-
-    <!-- TasksScreen -->
-    <string name="tasks">Tasks</string>
-
-    <!-- EditTaskScreen -->
-    <string name="edit_task">Edit your task</string>
-    <string name="title">Title</string>
-    <string name="description">Description</string>
-    <string name="url">URL</string>
-    <string name="date">Date</string>
-    <string name="time">Time</string>
-    <string name="flag">Flag</string>
-    <string name="priority">Priority</string>
-
-    <!-- SettingsScreen -->
-    <string name="settings">Settings</string>
-    <string name="sign_out">Sign out</string>
-    <string name="delete_my_account">Delete my account</string>
-
-    <!-- Dialogs -->
-    <string name="sign_out_title">Sign out?</string>
-    <string name="sign_out_description">You will have to sign in again to see your tasks.</string>
-    <string name="delete_account_title">Delete account?</string>
-    <string name="delete_account_description">You will lose all your tasks and your account will be deleted. This action is irreversible.</string>
+    <string name="facebook_app_id">CloneAppPractice</string>
+    <string name="fb_login_protocol_scheme">fbCloneAppPractice</string>
+    <string name="facebook_client_token">5a8c7bd91bed49157758947d028f88e7</string>
 </resources>
