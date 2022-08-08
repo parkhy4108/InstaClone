@@ -2,26 +2,25 @@ package com.devyoung.profile.presentation
 
 import android.content.ContentValues.TAG
 import android.util.Log
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.*
-import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.devyoung.base.composable.CircularIndicatorProgressBar
-import com.devyoung.profile.data.data_source.User
+import com.devyoung.base.composable.ImgLoad
 import com.devyoung.profile.presentation.composable.*
+import com.devyoung.base.R.string as AppText
+
 
 private const val CELL_COUNT = 3
 private val span: (LazyGridItemSpanScope) -> GridItemSpan = { GridItemSpan(CELL_COUNT) }
@@ -46,7 +45,15 @@ fun ProfileScreen(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        profileState.user?.let { ProfileTopBar(text = it.userNickName, backgroundColor = Color.White, elevation = 0.dp, onClick = {viewModel.userLogOut()}) }
+        profileState.user?.let {
+            ProfileTopBar(
+                text = it.userNickName,
+                onClick = {viewModel.userLogOut(restartApp)} ,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(14.dp, 0.dp)
+                    .background(Color.White)
+            ) }
         Spacer(modifier = Modifier.height(3.dp))
         Box(
             modifier = Modifier.fillMaxSize()
@@ -70,22 +77,11 @@ fun ProfileScreen(
 }
 
 fun LazyGridScope.postItem(
-    posts: ArrayList<String>,
+    posts: List<String>,
     imageHeight: Int,
 ){
     items(posts){ post ->
-        val img = imgLoad(imgUrl = post.toUri()).value
-        Card(
-            modifier = Modifier
-                .height(imageHeight.dp)
-        ) {
-            if (img != null) {
-                Image(
-                    bitmap = img.asImageBitmap(),
-                    contentDescription = null
-                )
-            }
-        }
+        ImgLoad(imgUrl = post.toUri(),modifier =Modifier.height(imageHeight.dp))
     }
 }
 
@@ -102,11 +98,11 @@ fun LazyGridScope.nothingItemView(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "프로필", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Text(text = stringResource(id = AppText.profile), fontSize = 18.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(3.dp))
-            Text(text = "사진과 동영상을 공유하면 프로필에 표시됩니다.", fontSize = 14.sp)
+            Text(text = stringResource(id = AppText.profileDescription1), fontSize = 14.sp)
             Spacer(modifier = Modifier.height(3.dp))
-            Text(text = "첫 사진 동영상을 공유해보세요", fontSize = 14.sp)
+            Text(text = stringResource(id = AppText.profileDescription2), fontSize = 14.sp)
         }
     }
 }

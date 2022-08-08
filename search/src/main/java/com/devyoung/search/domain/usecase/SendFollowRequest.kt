@@ -8,9 +8,10 @@ class SendFollowRequest @Inject constructor(
     private val repository: FirebaseRepository
 ) {
     suspend operator fun invoke(
+        email: String,
         personEmail: String,
         onResult: (Throwable?) -> Unit
     ) {
-        return repository.sendFollowRequest(personEmail,onResult)
+        return repository.sendFollowRequest(email, personEmail,onResult)
     }
 }

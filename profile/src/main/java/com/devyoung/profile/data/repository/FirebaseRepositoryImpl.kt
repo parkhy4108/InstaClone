@@ -9,7 +9,7 @@ import javax.inject.Inject
 
 class FirebaseRepositoryImpl @Inject constructor() : FirebaseRepository {
 
-    override suspend fun getUserEmail(): String? {
+    override fun getUserEmail(): String? {
         return Firebase.auth.currentUser?.email
     }
 

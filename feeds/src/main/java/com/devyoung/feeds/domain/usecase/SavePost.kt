@@ -7,7 +7,7 @@ import javax.inject.Inject
 class SavePost @Inject constructor(
     private val repository: FirebaseRepository
 ) {
-   suspend operator fun invoke(post: Post, onResult: (Throwable?)-> Unit) {
-       return repository.savePost(post,onResult)
+   suspend operator fun invoke(myEmail: String, post: Post, onResult: (Throwable?)-> Unit) {
+       return repository.savePost(myEmail, post,onResult)
    }
 }

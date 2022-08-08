@@ -1,8 +1,5 @@
 package com.devyoung.search.presentation.user
 
-import android.content.ContentValues.TAG
-import android.util.Log
-import androidx.compose.animation.core.exponentialDecay
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.devyoung.base.InstaViewModel
@@ -13,48 +10,45 @@ import javax.inject.Inject
 
 @HiltViewModel
 class UserViewModel @Inject constructor(
+    getMyAccountEmail: GetMyAccountEmail,
     private val getUserInfo: GetUserInfo,
     private val getAllPosts: GetAllPosts,
     private val checkRequest: CheckRequest,
-    private val getMyAccountEmail: GetMyAccountEmail,
+    private val checkFollowingList: CheckFollowingList,
     private val sendFollowRequest: SendFollowRequest,
+    private val deleteFollower: DeleteFollower,
+    private val deleteFollowing: DeleteFollowing,
     private val deleteFollowRequest: DeleteFollowRequest,
+    private val deleteFollowWaitingList: DeleteFollowWaitingList,
     private val updateFollowWaitingList: UpdateFollowWaitingList,
-    private val deleteFollowWaitingList: DeleteFollowWaitingList
+    private val updateFollowerNum: UpdateFollowerNum,
+    private val updateFollowingNum: UpdateFollowingNum
 ) : InstaViewModel() {
 
-    var uiState = mutableStateOf(UserState())
+    var userState = mutableStateOf(UserState())
         private set
 
-    private var myEmail: String = ""
+    private val myEmail = getMyAccountEmail()!!
 
     fun initialize(personEmail: String) {
         viewModelScope.launch {
-            myEmail = getMyAccountEmail()!!
-
             if(personEmail == myEmail){
-                uiState.value = uiState.value.copy(searchMyself = true)
+                userState.value = userState.value.copy(searchMyself = true)
             }
-
-            uiState.value = uiState.value.copy(screenLoading = true)
-
+            userState.value = userState.value.copy(screenLoading = true)
             delay(4000)
-
             getPersonInfo(personEmail)
-
             getPersonPosts(personEmail)
-
             checkWaitingList(personEmail)
-
-            uiState.value = uiState.value.copy(screenLoading = false)
+            checkFollowingList(personEmail)
+            userState.value = userState.value.copy(screenLoading = false)
         }
-
     }
 
     private fun getPersonInfo(personEmail: String) {
         viewModelScope.launch(exceptionHandler) {
             getUserInfo(personEmail, ::onError) {
-                uiState.value = uiState.value.copy(user = it)
+                userState.value = userState.value.copy(user = it)
             }
         }
     }
@@ -62,39 +56,60 @@ class UserViewModel @Inject constructor(
     private fun getPersonPosts(personEmail: String){
         viewModelScope.launch(exceptionHandler) {
             getAllPosts(userEmail = personEmail, ::onError) {
-                uiState.value = uiState.value.copy(post = it)
+                userState.value = userState.value.copy(post = it)
             }
         }
     }
 
     private fun checkWaitingList(personEmail: String){
         viewModelScope.launch(Dispatchers.IO) {
-            checkRequest(personEmail = personEmail, ::onError){ boolean ->
-                Log.d(TAG, "checkRequest: $boolean")
-                uiState.value = uiState.value.copy(hasRequest = boolean)
+            checkRequest(email = myEmail, personEmail = personEmail, ::onError){ boolean ->
+                userState.value = userState.value.copy(waiting = boolean)
             }
         }
     }
 
+    private fun checkFollowingList(personEmail: String){
+        viewModelScope.launch(exceptionHandler){
+            checkFollowingList(email = myEmail, personEmail = personEmail,::onError) { boolean ->
+                userState.value = userState.value.copy(following = boolean)
+            }
+        }
+    }
 
    fun onFollowButtonClicked(personEmail: String){
-       if(uiState.value.hasRequest) {
-           uiState.value = uiState.value.copy(hasRequest = false)
-           sendFollowRequest(personEmail)
-           updateFollowWaitingList(personEmail)
-       }
-       else {
-           uiState.value = uiState.value.copy(hasRequest = true)
+       if(userState.value.waiting) {
+           userState.value = userState.value.copy(waiting = false)
            deleteFollowRequest(personEmail)
            deleteFollowWaitingList(personEmail)
        }
+       else if(userState.value.following){
+           userState.value = userState.value.copy(openDialog = true)
+       }
+       else {
+           userState.value = userState.value.copy(waiting = true)
+           sendFollowRequest(personEmail)
+           updateFollowWaitingList(personEmail)
+
+       }
     }
 
+    fun onDialogCancel(){
+        userState.value = userState.value.copy(openDialog = false)
+    }
 
+    fun onDialogConfirmClicked(personEmail: String){
+        deleteFollower(personEmail)
+        updateFollowerNum(personEmail)
+        deleteFollowing(personEmail)
+        updateFollowingNum(myEmail)
+        userState.value = userState.value.copy(openDialog = false)
+        userState.value = userState.value.copy(following = false)
+    }
 
     private fun sendFollowRequest(personEmail: String){
         viewModelScope.launch(exceptionHandler) {
-               sendFollowRequest(personEmail){ error ->
+               sendFollowRequest(email = myEmail, personEmail){ error ->
                    if(error!=null) onError(error)
                }
            }
@@ -102,7 +117,7 @@ class UserViewModel @Inject constructor(
 
     private fun deleteFollowRequest(personEmail: String){
         viewModelScope.launch(exceptionHandler) {
-               deleteFollowRequest(personEmail){ error ->
+               deleteFollowRequest(email = myEmail, personEmail){ error ->
                    if(error!=null) onError(error)
                }
            }
@@ -110,7 +125,23 @@ class UserViewModel @Inject constructor(
 
     private fun updateFollowWaitingList(personEmail: String){
         viewModelScope.launch(exceptionHandler) {
-            updateFollowWaitingList(personEmail){ error ->
+            updateFollowWaitingList(email = myEmail, personEmail){ error ->
+                if(error!=null) onError(error)
+            }
+        }
+    }
+
+    private fun updateFollowerNum(email: String) {
+        viewModelScope.launch(exceptionHandler) {
+            updateFollowerNum(email){ error ->
+                if(error!=null) onError(error)
+            }
+        }
+    }
+
+    private fun updateFollowingNum(email: String) {
+        viewModelScope.launch(exceptionHandler) {
+            updateFollowingNum(email){ error ->
                 if(error!=null) onError(error)
             }
         }
@@ -118,9 +149,28 @@ class UserViewModel @Inject constructor(
 
     private fun deleteFollowWaitingList(personEmail: String){
         viewModelScope.launch(exceptionHandler) {
-            deleteFollowWaitingList(personEmail){ error ->
+            deleteFollowWaitingList(email = myEmail, personEmail){ error ->
                 if(error!=null) onError(error)
             }
         }
     }
+
+    private fun deleteFollower(personEmail: String){
+        viewModelScope.launch(exceptionHandler) {
+            deleteFollower(email = myEmail, personEmail = personEmail){ error ->
+                if(error!=null) onError(error)
+            }
+        }
+    }
+
+    private fun deleteFollowing(personEmail: String){
+        viewModelScope.launch(exceptionHandler) {
+            deleteFollowing(email = myEmail, personEmail = personEmail){ error ->
+                if(error!=null) onError(error)
+            }
+        }
+    }
+
+
+
 }

@@ -7,7 +7,7 @@ import javax.inject.Inject
 class UploadFile @Inject constructor(
     private val repository: FirebaseRepository
 ) {
-    suspend operator fun invoke(uri: Uri, onResult: (Throwable?) -> Unit ){
-        return repository.uploadFile(uri, onResult)
+    suspend operator fun invoke(myEmail: String, postId: String, uri: Uri, onResult: (Throwable?) -> Unit ){
+        return repository.uploadFile(myEmail, postId, uri, onResult)
     }
 }

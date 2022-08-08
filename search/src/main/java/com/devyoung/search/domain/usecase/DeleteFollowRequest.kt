@@ -8,9 +8,10 @@ class DeleteFollowRequest @Inject constructor(
     private val repository: FirebaseRepository
 ) {
     suspend operator fun invoke(
+        email: String,
         personEmail: String,
         onResult: (Throwable?) -> Unit
     ) {
-        return repository.deleteFollowRequest(personEmail, onResult)
+        return repository.deleteFollowRequest(email, personEmail, onResult)
     }
 }

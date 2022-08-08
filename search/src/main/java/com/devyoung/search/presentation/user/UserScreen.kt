@@ -1,25 +1,22 @@
 package com.devyoung.search.presentation.user
 
-import android.content.ContentValues.TAG
-import android.util.Log
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material.Card
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.devyoung.base.composable.CircularIndicatorProgressBar
-import com.devyoung.base.composable.loadPicture
+import com.devyoung.base.composable.ImgLoad
 import com.devyoung.search.presentation.composable.UserSection
+import com.devyoung.search.presentation.composable.UserTopBar
 
 @Composable
 fun UserScreen(
@@ -27,26 +24,31 @@ fun UserScreen(
     popUpScreen: () -> Unit,
     viewModel: UserViewModel = hiltViewModel()
 ) {
-    val userState by viewModel.uiState
+    val userState by viewModel.userState
     val imageWidth = LocalConfiguration.current.screenWidthDp
     val imageHeight = imageWidth / 3
 
-    val imageList = userState.post
-
     LaunchedEffect(Unit){
-        viewModel.initialize(id!!)
+        if (id != null) {
+            viewModel.initialize(id)
+        }
     }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        UserTopBar(
-            text = userState.user?.userNickName,
-            backgroundColor = Color.White,
-            elevation = 0.dp,
-            onClick = popUpScreen
-        )
+        userState.user?.userNickName?.let {
+            UserTopBar(
+                text = it,
+                onClick = popUpScreen,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp, 0.dp)
+                    .background(color = Color.White)
+            )
+        }
+
         Spacer(modifier = Modifier.height(1.dp))
 
         Box(modifier = Modifier){
@@ -56,38 +58,23 @@ fun UserScreen(
                         UserSection(
                             user = it,
                             state = userState,
-                            onFollowButtonClick = {
-                                if (id != null) {
-                                    viewModel.onFollowButtonClicked(id)
-                                }
-                            }
+                            onFollowButtonClick = { viewModel.onFollowButtonClicked(id.toString()) },
+                            onDialogCancel = { viewModel.onDialogCancel() },
+                            onDialogConfirmClick = { viewModel.onDialogConfirmClicked(id.toString()) }
                         )
                     }
                 }
-                if (imageList != null){
-                    items(imageList) { image ->
-                        val img = loadPicture(uri = image.toUri(), defaultImage = null).value
-                        Log.d(TAG, "postItem: $image")
-                        Card(
-                            modifier = Modifier
-                                .height(imageHeight.dp)
-                        ) {
-                            if (img != null) {
-                                Image(
-                                    bitmap = img.asImageBitmap(),
-                                    contentDescription = null
-                                )
-                            }
-                        }
-                    }
+                items(userState.post) { image ->
+                    ImgLoad(
+                        imgUrl = image.toUri(),
+                        modifier = Modifier
+                            .height(imageHeight.dp)
+                    )
                 }
             }
             CircularIndicatorProgressBar(isDisplayed = userState.screenLoading)
         }
-
-
     }
-
 }
 
 

@@ -2,7 +2,6 @@ package com.devyoung.search.presentation.detail
 
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
-import androidx.core.net.toUri
 import androidx.lifecycle.viewModelScope
 import com.devyoung.base.InstaViewModel
 import com.devyoung.base.Screen
@@ -25,11 +24,11 @@ class SearchDetailViewModel @Inject constructor(
 
 
     fun onSearchTextChanged(newValue: String){
-        searchState.value = searchState.value.copy(searchText = newValue, view = false , profileImg = null)
+        searchState.value = searchState.value.copy(searchText = newValue, view = false , profileImg = "")
     }
 
     fun onSearchTextCleared(){
-        searchState.value = searchState.value.copy(searchText = "", view = false , profileImg = null)
+        searchState.value = searchState.value.copy(searchText = "", view = false , profileImg = "")
     }
 
     fun onSearch(){
@@ -48,7 +47,7 @@ class SearchDetailViewModel @Inject constructor(
                 },
                 onSuccess = { uri, userEmail ->
                     searchState.value = searchState.value.copy(
-                        profileImg = uri.toUri(),
+                        profileImg = uri,
                         userEmail = userEmail
                     )
                 }

@@ -3,14 +3,14 @@ package com.devyoung.feeds.domain.usecase
 import com.devyoung.feeds.domain.reposiroty.FirebaseRepository
 import javax.inject.Inject
 
-class CheckFollowerList @Inject constructor(
+class UpdateMyWaitingList @Inject constructor(
     private val repository: FirebaseRepository
 ) {
     suspend operator fun invoke(
+        myEmail: String,
         personEmail: String,
-        onError: (Throwable) -> Unit,
-        onSuccess: (Boolean) -> Unit
+        onResult: (Throwable?) -> Unit
     ) {
-        return repository.checkFollowerList(personEmail ,onError, onSuccess)
+        return repository.updateMyWaitingList(myEmail, personEmail, onResult)
     }
 }

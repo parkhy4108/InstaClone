@@ -2,18 +2,23 @@ package com.devyoung.feeds.domain.usecase
 
 data class UseCases(
 
-    val checkFollowerList: CheckFollowerList,
-    val checkRequest: CheckRequest,
-    val deleteRequest: DeleteRequest,
-    val deleteWaitingList: DeleteWaitingList,
-    val getRequest: GetRequest,
+    val checkMyFollowerList: CheckMyFollowerList,
+    val checkMyWaitingList: CheckMyWaitingList,
+    val deleteRequestInMyList: DeleteRequestInMyList,
+    val deleteRequestInUserList: DeleteRequestInUserList,
+    val deleteMyEmailInUserWaitingList: DeleteMyEmailInUserWaitingList,
+    val deleteUserEmailInMyWaitingList: DeleteUserEmailInMyWaitingList,
+    val getMyInfo: GetMyInfo,
+    val getFeed: GetFeed,
     val getUserEmail: GetUserEmail,
+    val loadMyRequestedList: LoadMyRequestedList,
     val savePost: SavePost,
-    val sendFollowRequest: SendFollowRequest,
-    val updateFollower: UpdateFollower,
-    val updateFollowing: UpdateFollowing,
-    val updateFollowWaitingList: UpdateFollowWaitingList,
+    val sendRequestToUser: SendRequestToUser,
+    val updateMyFollowerList: UpdateMyFollowerList,
+    val updateMyWaitingList: UpdateMyWaitingList,
+    val updateFollowingNum: UpdateFollowingNum,
+    val updateFollowerNum: UpdateFollowerNum,
     val updatePostNum: UpdatePostNum,
+    val updateUserFollowingList: UpdateUserFollowingList,
     val uploadFile: UploadFile,
-
-)
+    )

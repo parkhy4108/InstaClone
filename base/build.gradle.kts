@@ -51,7 +51,6 @@ dependencies {
     api(Libs.FireBase.firestoreKTX)
     api(Libs.FireBase.storageKTX)
     api(Libs.skydovesGlide)
-    api(Libs.FireBase.uiStorage)
     api(Libs.coil)
 
     testImplementation(Libs.Test.Junit)

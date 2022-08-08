@@ -4,16 +4,19 @@ import androidx.annotation.StringRes
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 object SnackbarManager {
-    private val messages: MutableStateFlow<SnackbarMessage?> = MutableStateFlow(null)
-    val snackbarMessages: StateFlow<SnackbarMessage?> get() = messages.asStateFlow()
+    private val _messages: MutableStateFlow<SnackbarMessage?> = MutableStateFlow(null)
+    val messages: StateFlow<SnackbarMessage?> get() = _messages.asStateFlow()
 
     fun showMessage(@StringRes message: Int) {
-        messages.value = SnackbarMessage.ResourceSnackbar(message)
+        _messages.update {
+            SnackbarMessage.ResourceSnackBar(message)
+        }
     }
 
     fun showMessage(message: SnackbarMessage) {
-        messages.value = message
+        _messages.value = message
     }
 }

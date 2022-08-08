@@ -6,7 +6,7 @@ import javax.inject.Inject
 class UpdatePostNum @Inject constructor(
     private val repository: FirebaseRepository
 ) {
-    suspend operator fun invoke(onResult: (Throwable?)-> Unit) {
-        return repository.updatePostNum(onResult)
+    suspend operator fun invoke(myEmail: String, onResult: (Throwable?)-> Unit) {
+        return repository.updatePostNum(myEmail, onResult)
     }
 }

@@ -2,6 +2,7 @@ package com.devyoung.feeds.presentation.screen.followerRequest
 
 import android.content.ContentValues.TAG
 import android.util.Log
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
@@ -15,193 +16,227 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RequestViewModel @Inject constructor(
-    private val getRequest: GetRequest,
-    private val checkWaitingList: CheckRequest,
-    private val deleteRequest: DeleteRequest,
-    private val updateFollower: UpdateFollower,
-    private val deleteFollowWaitingList: DeleteWaitingList,
-    private val updateFollowing: UpdateFollowing,
-    private val sendFollowRequest: SendFollowRequest,
-    private val updateFollowWaitingList: UpdateFollowWaitingList,
-    private val checkFollowerList: CheckFollowerList
-) : InstaViewModel() {
+    getUserEmail: GetUserEmail,
+    private val checkMyFollowerList: CheckMyFollowerList,
+    private val checkMyFollowingList: CheckMyFollowingList,
+    private val checkMyWaitingList: CheckMyWaitingList,
+    private val deleteMyEmailInUserWaitingList: DeleteMyEmailInUserWaitingList,
+    private val deleteUserEmailInMyWaitingList: DeleteUserEmailInMyWaitingList,
+    private val deleteRequestInUserList: DeleteRequestInUserList,
+    private val deleteRequestInMyList: DeleteRequestInMyList,
+    private val loadMyRequestedList: LoadMyRequestedList,
+    private val updateMyFollowerList: UpdateMyFollowerList,
+    private val updateUserFollowingList: UpdateUserFollowingList,
+    private val updateMyWaitingList: UpdateMyWaitingList,
+    private val updateFollowingNum: UpdateFollowingNum,
+    private val updateFollowerNum: UpdateFollowerNum,
+    private val sendRequestToUser: SendRequestToUser,
+
+    ) : InstaViewModel() {
 
     var requestState = mutableStateOf(RequestState())
         private set
 
-    var mapState : MutableMap<String,Int> = mutableStateMapOf()
+    var userListState = mutableStateListOf<User>()
         private set
-    private val requestMap
-        get() = requestState.value.requestMap
 
-    private val map = mutableMapOf<String, Int>()
+    var isSelectedState = mutableStateMapOf<String, Int>()
+        private set
 
-    fun loadFollowerRequest() {
+    private val email = getUserEmail()
+
+    fun loadMyRequestedList() {
         viewModelScope.launch {
             requestState.value = requestState.value.copy(loading = true)
             delay(3000)
-            getRequest(::onError) { result ->
+            loadMyRequestedList(email.toString() ,::onError) { result ->
                 Log.d(TAG, "loadFollowerRequest: $result")
                 requestState.value = requestState.value.copy(followerList = result)
                 for(document in result){
+                    userListState.add(document)
                     Log.d(TAG, "loadFollowerRequest: document ${document.userEmail}")
-                    checkFollowerList(document.userEmail)
+                    checkMyFollowingList(document.userEmail)
                 }
             }
             requestState.value = requestState.value.copy(loading = false)
         }
     }
 
-    fun onAccept(personEmail: String) {
-        map.replace(personEmail,1)
-        Log.d(TAG, "onAccept: $map")
-//        deleteFollowWaitingList(personEmail)
-//        updateFollowing(personEmail)
-//        updateFollower(personEmail)
-        requestState.value = requestState.value.copy(requestMap = map)
-    }
 
-    fun onDelete(personEmail: String) {
-        deleteFollowRequest(personEmail)
-        deleteFollowWaitingList(personEmail)
+    fun onDelete(user: User) {
+        userListState.remove(user)
+        isSelectedState.remove(user.userEmail)
+        deleteRequestInMyList(user.userEmail)
+        deleteMyEmailInUserWaitingList(user.userEmail)
     }
 
     fun onBack(popUpScreen: () -> Unit) {
         popUpScreen()
     }
+//fun onFollowButtonClicked(personEmail: String) {
 
-    fun onFollowButtonClicked(personEmail: String) {
-        if (requestMap[personEmail]==1){
-            Log.d(TAG, "onFollowButtonClicked: ${requestMap[personEmail]}")
-            map.replace(personEmail, 2)
-            requestState.value = requestState.value.copy(requestMap = map)
-//            sendFollowRequest(personEmail)
-//            updateFollowWaitingList(personEmail)
+    fun onFollowButtonClicked(user: User) {
+        if (isSelectedState[user.userEmail]==0) {
+            isSelectedState[user.userEmail]=1
+            deleteMyEmailInUserWaitingList(user.userEmail)
+            updateUserFollowingList(user.userEmail)
+            updateMyFollowerList(user.userEmail)
+            updateFollowerNum(email.toString())
+            updateFollowingNum(user.userEmail)
+        }
+        else if(isSelectedState[user.userEmail]==1) {
+            isSelectedState[user.userEmail]=2
+            sendRequestToUser(user.userEmail)
+            updateMyWaitingList(user.userEmail)
+        }
+        else if(isSelectedState[user.userEmail]==2){
+            isSelectedState[user.userEmail]=1
+            deleteRequestInUserList(user.userEmail)
+            deleteUserEmailInMyWaitingList(user.userEmail)
         }
         else {
-            Log.d(TAG, "onFollowButtonClicked: ${requestMap[personEmail]}")
-            map.replace(personEmail, 1)
-            requestState.value = requestState.value.copy(requestMap = map)
-//            deleteFollowWaitingList(personEmail)
+            deleteRequestInMyList(user.userEmail)
+            deleteRequestInUserList(user.userEmail)
+            deleteMyEmailInUserWaitingList(user.userEmail)
+            updateFollowerNum(email.toString())
+            updateFollowingNum(user.userEmail)
+            updateUserFollowingList(user.userEmail)
+            userListState.remove(user)
+            isSelectedState.remove(user.userEmail)
+
         }
     }
 
-    private fun deleteFollowRequest(personEmail: String) {
+    private fun deleteRequestInUserList(personEmail: String){
         viewModelScope.launch(exceptionHandler) {
-            deleteRequest(personEmail){ error ->
-                if (error != null) {
-                    onError(error)
-                }
+            Log.d(TAG, "myEmail: ${email.toString()}, personEmail: $personEmail")
+            deleteRequestInUserList(myEmail = email.toString(), personEmail = personEmail ) { error ->
+                if(error!=null) onError(error)
             }
         }
     }
 
-    private fun updateFollower(personEmail: String) {
+    private fun deleteRequestInMyList(personEmail: String) {
         viewModelScope.launch(exceptionHandler) {
-            updateFollower(personEmail){ error ->
-                if (error != null) {
-                    onError(error)
-                }
+            deleteRequestInMyList(email.toString(), personEmail){ error ->
+                if (error != null) onError(error)
             }
         }
     }
 
-    private fun deleteFollowWaitingList(personEmail: String) {
+    private fun updateMyFollowerList(personEmail: String) {
         viewModelScope.launch(exceptionHandler) {
-            deleteFollowWaitingList(personEmail){ error ->
-                if (error != null) {
-                    onError(error)
-                }
+            updateMyFollowerList(email.toString(), personEmail){ error ->
+                if (error != null) onError(error)
             }
         }
     }
 
-    private fun updateFollowing(personEmail: String) {
+    private fun deleteMyEmailInUserWaitingList(personEmail: String) {
         viewModelScope.launch(exceptionHandler) {
-            updateFollowing(
+            deleteMyEmailInUserWaitingList(email.toString(), personEmail){ error ->
+                if (error != null) onError(error)
+            }
+        }
+    }
+
+    private fun deleteUserEmailInMyWaitingList(personEmail: String) {
+        viewModelScope.launch(exceptionHandler) {
+            deleteUserEmailInMyWaitingList(email.toString(), personEmail){ error ->
+                if (error != null) onError(error)
+            }
+        }
+    }
+
+    private fun updateUserFollowingList(personEmail: String) {
+        viewModelScope.launch(exceptionHandler) {
+            updateUserFollowingList(
+                myEmail = email.toString(),
                 personEmail = personEmail
             ){ error ->
-                if (error != null) {
-                    onError(error)
-                }
+                if (error != null) onError(error)
             }
         }
     }
 
-    private fun sendFollowRequest(personEmail: String){
+    private fun updateMyWaitingList(personEmail: String){
         viewModelScope.launch {
-            sendFollowRequest(personEmail){ error ->
-                if(error != null ){
-                    onError(error)
-                }
+            updateMyWaitingList(email.toString(), personEmail){ error ->
+                if(error!=null) onError(error)
             }
         }
     }
 
-    private fun updateFollowWaitingList(personEmail: String){
+    private fun updateFollowerNum(email: String) {
+        viewModelScope.launch(exceptionHandler) {
+            updateFollowerNum(email){ error ->
+                if(error!=null) onError(error)
+            }
+        }
+    }
+
+    private fun updateFollowingNum(email: String) {
+        viewModelScope.launch(exceptionHandler) {
+            updateFollowingNum(email){ error ->
+                if(error!=null) onError(error)
+            }
+        }
+    }
+
+    private fun sendRequestToUser(personEmail: String){
         viewModelScope.launch {
-            updateFollowWaitingList(personEmail){ error ->
-                if(error!=null){
-                    onError(error)
-                }
+            sendRequestToUser(email.toString(), personEmail){ error ->
+                if(error != null )onError(error)
             }
         }
     }
 
 
-    private fun checkFollowerList(personEmail: String){
+    private fun checkMyFollowerList(personEmail: String){
         viewModelScope.launch(exceptionHandler){
-            checkFollowerList(personEmail = personEmail, ::onError){ follower ->
-                Log.d(TAG, "follower: $personEmail  ---->  $follower")
+            checkMyFollowerList(email.toString(), personEmail, ::onError){ follower ->
                 when(follower){
                     true -> {
-                        checkWaitingList(personEmail)
+                        checkMyWaitingList(personEmail)
                     }
                     false -> {
-                        map[personEmail] = 0
-                        Log.d(TAG, "map -----> $map")
-                        requestState.value = requestState.value.copy(
-                            requestMap = map
-                        )
-                        mapState[personEmail]=0
-                        Log.d(TAG, "mutableStateMap: ${mapState[personEmail]}")
-                        if(requestState.value.requestMap.size == requestState.value.followerList.size ){
-                            requestState.value = requestState.value.copy(view = true)
+                        isSelectedState[personEmail] = 0
                         }
-                        Log.d(TAG, "reqeustState.value.map ----> ${requestState.value.requestMap}")
+                    }
+                }
+            }
+        }
+
+    private fun checkMyFollowingList(personEmail: String){
+        viewModelScope.launch(exceptionHandler){
+            checkMyFollowingList(email.toString(), personEmail, ::onError){ following ->
+                when(following){
+                    true -> {
+                        isSelectedState[personEmail] = 3
+                    }
+                    false -> {
+                        checkMyFollowerList(personEmail)
                     }
                 }
             }
         }
     }
 
-    private fun checkWaitingList(personEmail: String){
+    private fun checkMyWaitingList(personEmail: String){
         viewModelScope.launch(exceptionHandler) {
-            checkWaitingList(personEmail = personEmail, ::onError) { waiting ->
-                Log.d(TAG, "waiting: $waiting")
+            checkMyWaitingList(email.toString(), personEmail, ::onError) { waiting ->
                 when (waiting) {
                     true -> {
-                        map[personEmail] = 2
-                        mapState[personEmail]=2
-                        Log.d(TAG, "mapState: ${mapState[personEmail]}")
-                        Log.d(TAG, "reqeustState.value.map ----> ${requestState.value.requestMap}")
+                        isSelectedState[personEmail] = 2
                     }
                     false -> {
-                        map[personEmail] = 1
-                        mapState[personEmail]=1
-                        Log.d(TAG, "mapState: ${mapState[personEmail]}")
-                        Log.d(TAG, "map -----> $map")
-                        Log.d(TAG, "reqeustState.value.map ----> ${requestState.value.requestMap}")
+                        isSelectedState[personEmail] = 1
                     }
-                }
-                requestState.value = requestState.value.copy(
-                    requestMap = map
-                )
-                if(requestState.value.requestMap.size == requestState.value.followerList.size ){
-                    requestState.value = requestState.value.copy(view = true)
                 }
             }
         }
     }
 
 }
+
+

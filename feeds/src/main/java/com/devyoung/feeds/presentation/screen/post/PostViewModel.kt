@@ -1,8 +1,6 @@
 package com.devyoung.feeds.presentation.screen.post
 
-import android.content.ContentValues.TAG
 import android.net.Uri
-import android.util.Log
 import androidx.compose.runtime.*
 import androidx.core.net.toUri
 import androidx.lifecycle.viewModelScope
@@ -14,13 +12,11 @@ import com.devyoung.feeds.domain.usecase.SavePost
 import com.devyoung.feeds.domain.usecase.UpdatePostNum
 import com.devyoung.feeds.domain.usecase.UploadFile
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
-import com.devyoung.base.R.string as AppText
 
 @HiltViewModel
 class PostViewModel @Inject constructor(
@@ -36,6 +32,8 @@ class PostViewModel @Inject constructor(
     private val imageUri get() = postState.value.imageUrl
     private val comments get() = postState.value.comments
 
+    private val email = getUserEmail()
+
     fun onImageChange(newImageUri: Uri?) {
         postState.value = postState.value.copy(imageUrl = newImageUri)
     }
@@ -47,20 +45,19 @@ class PostViewModel @Inject constructor(
     fun onSavePostClick(
         popUpScreen: () -> Unit
     ) {
-        savePost()
-        updateUserPostNumber(popUpScreen)
+        savePost(popUpScreen)
     }
 
-
-    private fun savePost(){
-        val postId = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.getDefault())
+    private fun savePost(popUpScreen: () -> Unit){
+        val postId = SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault())
         val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val time = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
         val currentTime: Long = System.currentTimeMillis()
 
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(exceptionHandler) {
             val userEmail = getUserEmail()
             savePost(
+                userEmail.toString(),
                 post = Post(
                     postId = postId.format(currentTime).toString(),
                     postImg = imageUri.toString(),
@@ -72,15 +69,20 @@ class PostViewModel @Inject constructor(
                 )
             ) { error ->
                 if (error != null) onError(error)
+                else uploadFile(
+                    postId = postId.format(currentTime).toString() ,
+                    uri = imageUri.toString() ,
+                    popUpScreen = popUpScreen
+                )
             }
         }
     }
 
-    private fun uploadFile(uri: String, popUpScreen: () -> Unit) {
-        viewModelScope.launch(Dispatchers.IO) {
+    private fun uploadFile(postId: String, uri: String, popUpScreen: () -> Unit) {
+        viewModelScope.launch(exceptionHandler) {
             postState.value = postState.value.copy(loading = true)
             delay(4000)
-            uploadFile(uri.toUri()) { error ->
+            uploadFile(email.toString(), postId ,uri.toUri()) { error ->
                 if (error == null) updateUserPostNumber(popUpScreen)
                 else onError(error)
             }
@@ -89,9 +91,9 @@ class PostViewModel @Inject constructor(
 
     private fun updateUserPostNumber(popUpScreen: () -> Unit) {
         viewModelScope.launch(exceptionHandler) {
-            userPostNum { error ->
+            userPostNum(email.toString()) { error ->
                 if (error == null) {
-                    SnackbarManager.showMessage(com.devyoung.base.R.string.post)
+                    SnackbarManager.showMessage(com.devyoung.base.R.string.postUpload)
                     popUpScreen()
                 }
                 else onError(error)

@@ -1,26 +1,32 @@
 package com.devyoung.feeds.presentation.screen.followerRequest
 
-import android.content.ContentValues.TAG
-import android.util.Log
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.devyoung.base.composable.CircularIndicatorProgressBar
-import com.devyoung.base.composable.ProfileImg
-import com.devyoung.feeds.R
+import com.devyoung.base.composable.ImgLoad
+import com.devyoung.feeds.data.model.User
+import com.devyoung.base.R.string as AppText
+import com.devyoung.base.R.drawable as AppImg
+
 
 @Composable
 fun FollowerRequestScreen(
@@ -29,288 +35,172 @@ fun FollowerRequestScreen(
 ) {
     val requestState by viewModel.requestState
 
-//    val mapState by remember {
-//        viewModel.mapState
-//    }
-//    Log.d(TAG, "screen mapState: $mapState ")
+    val isSelectedState = viewModel.isSelectedState
+    val userListState = viewModel.userListState
 
     LaunchedEffect(true) {
-        viewModel.loadFollowerRequest()
+        viewModel.loadMyRequestedList()
     }
-
 
     Column(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        Row(
+        TopBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(10.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(
-                onClick = { viewModel.onBack(popUpScreen) }
-            ) {
-                Icon(painter = painterResource(id = R.drawable.ic_back), contentDescription = null)
-            }
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(30.dp, 0.dp),
-                text = "팔로우 요청"
+            onBackClicked = {viewModel.onBack(popUpScreen)}
+        )
+        Box(modifier = Modifier.fillMaxSize()){
+            FollowRequestList(
+                userList = userListState,
+                selectedState = isSelectedState,
+                onFollowButtonClicked = viewModel::onFollowButtonClicked,
+                onDeleted = viewModel::onDelete
             )
-        }
-        Box(modifier = Modifier.fillMaxSize()) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                items(requestState.followerList) { follower ->
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            if (requestState.view) {
-                                Row(
-                                    modifier = Modifier.fillParentMaxWidth(0.5f),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.Start
-                                ) {
-                                    ProfileImg(imgUrl = follower.userImage.toUri())
-                                    Text(
-                                        text = follower.userNickName,
-                                        modifier = Modifier.padding(10.dp, 0.dp)
-                                    )
-                                }
-                                Log.d(
-                                    TAG,
-                                    "FollowerRequestScreen: ${requestState.requestMap[follower.userEmail]}"
-                                )
-                                if (requestState.requestMap[follower.userEmail]==0){
-//                                if (mapState==0) {
-                                    Row(
-                                        modifier = Modifier.fillParentMaxWidth(0.5f),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.End
-                                    ) {
-                                        Button(
-                                            modifier = Modifier.size(60.dp, 30.dp),
-                                            colors = ButtonDefaults.buttonColors(
-                                                backgroundColor = Color(
-                                                    0xFF1E88E5
-                                                )
-                                            ),
-                                            onClick = { viewModel.onAccept(follower.userEmail) }
-                                        ) {
-                                            Text(text = "확인", fontSize = 10.sp)
-                                        }
-                                        Button(
-                                            modifier = Modifier.size(60.dp, 30.dp),
-                                            colors = ButtonDefaults.buttonColors(
-                                                backgroundColor = Color(
-                                                    0xFF9DA3A8
-                                                )
-                                            ),
-                                            onClick = { viewModel.onDelete(follower.userEmail) }
-                                        ) {
-                                            Text(text = "삭제", fontSize = 10.sp)
-                                        }
-                                    }
-                                } else if (requestState.requestMap[follower.userEmail] == 1) {
-                                    Row(
-                                        modifier = Modifier.fillParentMaxWidth(0.5f),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.End
-                                    ) {
-                                        Button(
-                                            modifier = Modifier.size(80.dp, 30.dp),
-                                            colors = ButtonDefaults.buttonColors(
-                                                backgroundColor = Color(
-                                                    0xFF1E88E5
-                                                )
-                                            ),
-                                            onClick = {
-                                                viewModel.onFollowButtonClicked(
-                                                    follower.userEmail
-                                                )
-                                            }
-                                        ) {
-                                            Text(text = "맞팔로우 하기", fontSize = 10.sp)
-                                        }
-                                    }
-                                } else {
-                                    Row(
-                                        modifier = Modifier.fillParentMaxWidth(0.5f),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.End
-                                    ) {
-                                        Button(
-                                            modifier = Modifier.size(70.dp, 30.dp),
-                                            colors = ButtonDefaults.buttonColors(
-                                                backgroundColor = Color(
-                                                    0xFF1E88E5
-                                                )
-                                            ),
-                                            onClick = {
-                                                viewModel.onFollowButtonClicked(
-                                                    follower.userEmail
-                                                )
-                                            }
-                                        ) {
-                                            Text(text = "요청됨", fontSize = 10.sp)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                    }
-                }
-            }
             CircularIndicatorProgressBar(isDisplayed = requestState.loading)
         }
+
+
+    }
+}
+
+@Composable
+fun TopBar(
+    modifier: Modifier=Modifier,
+    onBackClicked: ()->Unit
+){
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(
+            onClick = { onBackClicked() }
+        ) {
+            Icon(painter = painterResource(id = AppImg.ic_back), contentDescription = null)
+        }
+        Text(
+            text = stringResource(id = AppText.followRequest),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(30.dp, 0.dp)
+        )
+
     }
 }
 
 
-//ProfileImg(imgUrl = follower.userImage.toUri())
-//Text(text = follower.userNickName)
-//Button(
-//colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF1E88E5)),
-//onClick = { viewModel.onAccept() }
-//) {
-//    Text(text = "확인", fontSize = 10.sp)
-//}
-//Button(
-//colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF9DA3A8)),
-//onClick = { viewModel.onDelete() }
-//) {
-//    Text(text = "삭제", fontSize = 10.sp)
-//}
+@Composable
+fun FollowRequestList(
+    userList: List<User>,
+    selectedState: Map<String, Int>,
+    onFollowButtonClicked:(User) -> Unit,
+    onDeleted: (User) -> Unit,
+    modifier: Modifier = Modifier
+){
+    LazyColumn(
+        modifier = modifier.fillMaxSize(),
+        contentPadding = PaddingValues(15.dp),
+        verticalArrangement = Arrangement.spacedBy(5.dp)
+    ){
+        items(items = userList){ user ->
+            FollowerUserCard(
+                user = user,
+                isSelected = selectedState[user.userEmail]?: 4,
+                onFollowButtonClicked = onFollowButtonClicked,
+                onDeleted = onDeleted,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
 
+@Composable
+fun FollowerUserCard (
+    user: User,
+    isSelected: Int,
+    onFollowButtonClicked:(User)->Unit,
+    onDeleted:(User)-> Unit,
+    modifier: Modifier = Modifier
+){
+    val buttonColor by animateColorAsState(
+        if(isSelected==1) Color(0xFF1E88E5)
+        else Color.LightGray
+    )
 
-//Row(
-//modifier = Modifier.fillMaxWidth(),
-//verticalAlignment = Alignment.CenterVertically,
-//) {
-//    Button(
-//        colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF1E88E5)),
-//        onClick = { viewModel.onAccept() }
-//    ) {
-//        Text(text = "확인", fontSize = 10.sp)
-//    }
-//    Button(
-//        colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF9DA3A8)),
-//        onClick = { viewModel.onDelete() }
-//    ) {
-//        Text(text = "삭제", fontSize = 10.sp)
-//    }
-//}
+    val buttonText =
+        if(isSelected==1) stringResource(id = AppText.followUp)
+        else stringResource(id = AppText.sent)
 
-
-//Row(
-//modifier = Modifier.fillParentMaxWidth(0.5f),
-//verticalAlignment = Alignment.CenterVertically,
-//horizontalArrangement = Arrangement.End
-//) {
-//    Button(
-//        modifier = Modifier.size(60.dp, 30.dp),
-//        colors = ButtonDefaults.buttonColors(
-//            backgroundColor = Color(
-//                0xFF1E88E5
-//            )
-//        ),
-//        onClick = { viewModel.onAccept(follower.userEmail) }
-//    ) {
-//        Text(text = "확인", fontSize = 10.sp)
-//    }
-//    Button(
-//        modifier = Modifier.size(60.dp, 30.dp),
-//        colors = ButtonDefaults.buttonColors(
-//            backgroundColor = Color(
-//                0xFF9DA3A8
-//            )
-//        ),
-//        onClick = { viewModel.onDelete() }
-//    ) {
-//        Text(text = "삭제", fontSize = 10.sp)
-//    }
-//}
-
-
-//Row(
-//modifier = Modifier.fillParentMaxWidth(0.5f),
-//verticalAlignment = Alignment.CenterVertically,
-//horizontalArrangement = Arrangement.End
-//){
-//    Button(
-//        modifier = Modifier.size(60.dp, 30.dp),
-//        colors = ButtonDefaults.buttonColors(
-//            backgroundColor = Color(
-//                0xFF1E88E5
-//            )
-//        ),
-//        onClick = { viewModel.onFollowButtonClicked(follower.userEmail) }
-//    ) {
-//        Text(text = "요청됨")
-//    }
-//}
-
-
-//Row(
-//modifier = Modifier.fillParentMaxWidth(0.5f),
-//verticalAlignment = Alignment.CenterVertically,
-//horizontalArrangement = Arrangement.End
-//){
-//    Button(
-//        modifier = Modifier.size(80.dp, 30.dp),
-//        colors = ButtonDefaults.buttonColors(
-//            backgroundColor = Color(
-//                0xFF1E88E5
-//            )
-//        ),
-//        onClick = { viewModel.onFollowButtonClicked(follower.userEmail) }
-//    ) {
-//        Text(text = "맞팔로우 하기", fontSize = 10.sp)
-//    }
-//}
-
-
-//Row(
-//modifier = Modifier.fillParentMaxWidth(0.5f),
-//verticalAlignment = Alignment.CenterVertically,
-//horizontalArrangement = Arrangement.End
-//){
-//    if(requestState.hasRequest){
-//        Button(
-//            modifier = Modifier.size(60.dp, 30.dp),
-//            colors = ButtonDefaults.buttonColors(
-//                backgroundColor = Color(
-//                    0xFF1E88E5
-//                )
-//            ),
-//            onClick = { viewModel.onFollowButtonClicked(follower.userEmail) }
-//        ) {
-//            Text(text = "요청됨")
-//        }
-//    }
-//    else {
-//        Button(
-//            modifier = Modifier.size(80.dp, 30.dp),
-//            colors = ButtonDefaults.buttonColors(
-//                backgroundColor = Color(
-//                    0xFF1E88E5
-//                )
-//            ),
-//            onClick = { viewModel.onFollowButtonClicked(follower.userEmail) }
-//        ) {
-//            Text(text = "맞팔로우 하기", fontSize = 10.sp)
-//        }
-//    }
-//}
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        elevation = 0.dp,
+        shape = RectangleShape
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(0.5f),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                ImgLoad(
+                    imgUrl = user.userImage.toUri(),
+                    modifier = Modifier
+                        .size(60.dp)
+                        .clip(CircleShape)
+                        .border(2.dp, Color.Blue, CircleShape)
+                )
+                Text(
+                    text = user.userNickName,
+                    modifier = Modifier.padding(10.dp,0.dp,0.dp,0.dp)
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.End,
+            ) {
+                if(isSelected==0 || isSelected==3){
+                    Button(
+                        modifier = Modifier
+                            .size(60.dp, 30.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            backgroundColor = Color(
+                                0xFF1E88E5
+                            )
+                        ),
+                        onClick = { onFollowButtonClicked(user) }
+                    ) {
+                        Text(text = stringResource(id = AppText.okay), fontSize = 10.sp)
+                    }
+                    Button(
+                        modifier = Modifier
+                            .padding(10.dp, 0.dp, 0.dp, 0.dp)
+                            .size(60.dp, 30.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            backgroundColor = Color(
+                                0xFF9DA3A8
+                            )
+                        ),
+                        onClick = { onDeleted(user) }
+                    ) {
+                        Text(text = stringResource(id = AppText.delete), fontSize = 10.sp)
+                    }
+                }
+                else {
+                    Button(
+                        modifier = Modifier
+                            .size(80.dp, 30.dp),
+                        colors = ButtonDefaults.buttonColors(buttonColor),
+                        onClick = { onFollowButtonClicked(user) }
+                    ) {
+                        Text(text = buttonText, fontSize = 10.sp)
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,6 +1,7 @@
 package com.devyoung.feeds.presentation.composable
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -17,57 +18,45 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.devyoung.feeds.R.drawable as AppImg
+import com.devyoung.base.R.drawable as AppImg
 @Composable
 fun PostTopBar(
     modifier: Modifier,
     text: String,
-    backgroundColor: Color,
-    elevation: Dp,
     onGalleryButtonClick: ()->Unit,
     onAddButtonClick: ()-> Unit
 ){
-    TopAppBar(
+    Row(
         modifier = modifier,
-        backgroundColor = backgroundColor,
-        elevation = elevation
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
+        Text(
+            modifier = Modifier.padding(5.dp),
+            text = text,
+            fontSize = 15.sp,
+            color = Color.Black
+        )
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-//                .padding(10.dp, 0.dp)
-            ,
-            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier=Modifier
+                .width(130.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                modifier = Modifier.padding(5.dp),
-                text = text,
-                fontSize = 20.sp,
-                color = Color.Black
-            )
-            Row(
-                modifier=Modifier
-                    .width(130.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = { onGalleryButtonClick() }) {
-                    Icon(
-                        modifier = Modifier
-                            .then(Modifier.size(25.dp)),
-                        painter = painterResource(id = AppImg.ic_add_photo),
-                        contentDescription = null)
-                }
-                IconButton(onClick = { onAddButtonClick() }) {
-                    Icon(
-                        modifier = Modifier
-                            .then(Modifier.size(25.dp)),
-                        painter = painterResource(id = AppImg.ic_okay),
-                        contentDescription = null)
-                }
+            IconButton(onClick = { onGalleryButtonClick() }) {
+                Icon(
+                    modifier = Modifier
+                        .then(Modifier.size(25.dp)),
+                    painter = painterResource(id = AppImg.ic_add_photo),
+                    contentDescription = null)
+            }
+            IconButton(onClick = { onAddButtonClick() }) {
+                Icon(
+                    modifier = Modifier
+                        .then(Modifier.size(25.dp)),
+                    painter = painterResource(id = AppImg.ic_okay),
+                    contentDescription = null)
             }
         }
-
     }
 }

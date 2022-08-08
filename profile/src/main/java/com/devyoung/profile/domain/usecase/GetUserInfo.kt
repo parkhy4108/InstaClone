@@ -7,7 +7,7 @@ import javax.inject.Inject
 class GetUserInfo @Inject constructor(
     private val fireStoreRepository: FirestoreRepository
 ) {
-    suspend operator fun invoke(onError: (Throwable)->Unit, onSuccess: (User)-> Unit)  {
-        return fireStoreRepository.getUserInfo(onError, onSuccess)
+    suspend operator fun invoke(email: String, onError: (Throwable)->Unit, onSuccess: (User)-> Unit)  {
+        return fireStoreRepository.getUserInfo(email,onError, onSuccess)
     }
 }

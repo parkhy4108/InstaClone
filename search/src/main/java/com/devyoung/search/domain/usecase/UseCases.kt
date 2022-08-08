@@ -5,9 +5,14 @@ data class UseCases(
     val getUserInfo: GetUserInfo,
     val getAllPosts: GetAllPosts,
     val checkRequest: CheckRequest,
+    val checkFollowingList: CheckFollowingList,
     val sendFollowRequest: SendFollowRequest,
     val deleteFollowRequest: DeleteFollowRequest,
     val getMyAccountEmail: GetMyAccountEmail,
     val updateFollowWaitingList: UpdateFollowWaitingList,
-    val deleteFollowWaitingList: DeleteFollowWaitingList
+    val updateFollowerNum: UpdateFollowerNum,
+    val updateFollowingNum: UpdateFollowingNum,
+    val deleteFollowWaitingList: DeleteFollowWaitingList,
+    val deleteFollower: DeleteFollower,
+    val deleteFollowing: DeleteFollowing
 )

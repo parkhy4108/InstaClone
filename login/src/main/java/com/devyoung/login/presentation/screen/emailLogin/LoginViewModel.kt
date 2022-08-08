@@ -40,14 +40,11 @@ class LoginViewModel @Inject constructor(
 
 
     fun onLoginClick(openAndPopUp:(String, String)-> Unit) {
-
-        if (!Patterns.EMAIL_ADDRESS.matcher(loginState.value.userName).matches()) {
-            SnackbarManager.showMessage(AppText.emailWrong)
-        }
         viewModelScope.launch(exceptionHandler) {
             userLogin(email, password) { error ->
                 if(error == null) {
-                    openAndPopUp(Screen.Home.route, Screen.Login.route)
+                    Log.d(TAG, "onLoginClick: $email")
+                    openAndPopUp(BottomBarScreen.Feed.route, Screen.Login.route)
                 }else {
                     onError(error)
                 }

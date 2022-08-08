@@ -4,7 +4,7 @@ import com.devyoung.profile.data.data_source.User
 
 
 interface FirebaseRepository {
-    suspend fun getUserEmail() : String?
+    fun getUserEmail() : String?
     suspend fun userLogOut()
 
 

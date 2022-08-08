@@ -23,14 +23,19 @@ object Module {
     fun provideUseCases(firebaseRepository: FirebaseRepository): UseCases {
         return UseCases(
             checkRequest = CheckRequest(firebaseRepository),
+            checkFollowingList = CheckFollowingList(firebaseRepository),
             searchUser = SearchUser(firebaseRepository),
             getUserInfo = GetUserInfo(firebaseRepository),
             getAllPosts = GetAllPosts(firebaseRepository),
             getMyAccountEmail = GetMyAccountEmail(firebaseRepository),
             sendFollowRequest = SendFollowRequest(firebaseRepository),
             deleteFollowRequest = DeleteFollowRequest(firebaseRepository),
-            updateFollowWaitingList = UpdateFollowWaitingList(firebaseRepository),
             deleteFollowWaitingList = DeleteFollowWaitingList(firebaseRepository),
+            deleteFollower = DeleteFollower(firebaseRepository),
+            deleteFollowing = DeleteFollowing(firebaseRepository),
+            updateFollowWaitingList = UpdateFollowWaitingList(firebaseRepository),
+            updateFollowingNum = UpdateFollowingNum(firebaseRepository),
+            updateFollowerNum = UpdateFollowerNum(firebaseRepository)
         )
     }
 

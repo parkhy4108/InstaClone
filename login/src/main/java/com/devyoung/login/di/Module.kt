@@ -30,12 +30,13 @@ object Module {
 
     @Provides
     @Singleton
-    fun provideUseCases(firebaseRepository: FirebaseRepository, fireStoreRepository: FirestoreRepository): LoginUseCases{
-        return LoginUseCases(
+    fun provideUseCases(firebaseRepository: FirebaseRepository, fireStoreRepository: FirestoreRepository): UseCases{
+        return UseCases(
             hasUser = HasUser(firebaseRepository),
             userLogin = UserLogin(firebaseRepository),
             userSignUp = UserSignUp(firebaseRepository),
-            saveUserInfo = SaveUserInfo(fireStoreRepository)
+            saveUserInfo = SaveUserInfo(fireStoreRepository),
+            getUserEmail = GetUserEmail(firebaseRepository)
         )
     }
 

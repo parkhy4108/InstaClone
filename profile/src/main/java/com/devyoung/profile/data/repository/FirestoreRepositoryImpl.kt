@@ -20,15 +20,13 @@ const val POST_ID = "postId"
 
 class FirestoreRepositoryImpl @Inject constructor() : FirestoreRepository {
 
-    private val userEmail = Firebase.auth.currentUser?.email.toString()
-    private val storage = Firebase.storage
-
     override suspend fun getUserInfo(
+        email: String,
         onError: (Throwable) -> Unit,
         onSuccess: (User) -> Unit,
     ) {
         Firebase.firestore
-            .collection(userEmail).document(USER_INFO)
+            .collection(email).document(USER_INFO)
             .get()
             .addOnFailureListener { error -> onError(error) }
             .addOnSuccessListener {  result ->
@@ -37,18 +35,20 @@ class FirestoreRepositoryImpl @Inject constructor() : FirestoreRepository {
     }
 
     override suspend fun getAllPosts(
+        email: String,
         onError: (Throwable) -> Unit,
         onSuccess: (ArrayList<String>) -> Unit
     ) {
-        val listRef = storage.reference.child("$userEmail/post/")
+        val listRef = Firebase.storage.reference.child("$email/post/")
         val listAllTask: Task<ListResult> = listRef.listAll()
         val image = arrayListOf<String>()
         var cnt = 0
         listAllTask
             .addOnSuccessListener { result ->
-                val items = result.items
+                val items = result.items.reversed()
                 val size = items.size
                 items.forEach { ref ->
+                    Log.d(TAG, "getAllPosts: $ref")
                     ref.downloadUrl.addOnSuccessListener { uri ->
                         image.add(uri.toString())
                         cnt++

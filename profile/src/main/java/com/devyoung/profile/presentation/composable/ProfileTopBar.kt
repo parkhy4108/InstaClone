@@ -16,32 +16,24 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun ProfileTopBar(
     text: String,
-    backgroundColor: Color,
-    elevation: Dp,
-    onClick : () -> Unit
+    onClick : () -> Unit,
+    modifier: Modifier
 ) {
-    TopAppBar(
-        backgroundColor = backgroundColor,
-        elevation = elevation
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(14.dp, 0.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        Text(
+            modifier = Modifier,
+            text = text,
+            color = Color.Black,
+        )
+        Button(
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
+            onClick = { onClick() }
         ) {
-            Text(
-                modifier = Modifier,
-                text = text,
-                color = Color.Black,
-            )
-            Button(
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
-                onClick = { onClick() }
-            ) {
-                Text(text = "로그아웃", color = Color.Black)
-            }
+            Text(text = "로그아웃", color = Color.Black)
         }
     }
 }

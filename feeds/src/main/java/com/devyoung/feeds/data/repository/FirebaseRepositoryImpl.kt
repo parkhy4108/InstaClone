@@ -1,6 +1,7 @@
 package com.devyoung.feeds.data.repository
 
 import android.content.ContentValues
+import android.content.ContentValues.TAG
 import android.net.Uri
 import android.util.Log
 import com.devyoung.base.*
@@ -19,49 +20,206 @@ import kotlinx.coroutines.flow.Flow
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
+import kotlin.collections.ArrayList
+import kotlin.math.log
 
 class FirebaseRepositoryImpl @Inject constructor() : FirebaseRepository {
 
-    private val myEmail = Firebase.auth.currentUser?.email.toString()
-    private val storage = Firebase.storage
     private val currentTime: Long = System.currentTimeMillis()
     private val postId =
         SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.getDefault()).format(currentTime).toString()
 
-    override suspend fun getUserEmail(): String? {
-        return Firebase.auth.currentUser?.email
+    override suspend fun checkMyFollowerList(
+        myEmail: String,
+        personEmail: String,
+        onError: (Throwable) -> Unit,
+        onSuccess: (Boolean) -> Unit
+    ) {
+        Firebase.firestore.collection(myEmail).document(FOLLOWER_LIST)
+            .collection(FOLLOWER_EMAIL).document(personEmail)
+            .get()
+            .addOnSuccessListener { result ->
+                val hasDoc: Boolean = result.exists()
+                onSuccess(hasDoc)
+            }
+            .addOnFailureListener {
+                onError(it)
+            }
     }
 
-    override suspend fun savePost(post: Post, onResult: (Throwable?) -> Unit) {
-        Firebase.firestore
-            .collection(this.myEmail).document("post")
-            .collection("postId").document(postId)
-            .set(post)
+    override suspend fun checkMyFollowingList(
+        myEmail: String,
+        personEmail: String,
+        onError: (Throwable) -> Unit,
+        onSuccess: (Boolean) -> Unit
+    ) {
+        Firebase.firestore.collection(myEmail).document(FOLLOWING_LIST)
+            .collection(FOLLOWING_EMAIL).document(personEmail)
+            .get()
+            .addOnSuccessListener { result ->
+                val hasDoc: Boolean = result.exists()
+                onSuccess(hasDoc)
+            }
+            .addOnFailureListener {
+                onError(it)
+            }
+    }
+
+    override suspend fun checkMyWaitingList(
+        myEmail: String,
+        personEmail: String,
+        onError: (Throwable) -> Unit,
+        onSuccess: (Boolean) -> Unit
+    ) {
+        Firebase.firestore.collection(myEmail).document(WAITING_LIST)
+            .collection(WAITING_EMAIL).document(personEmail)
+            .get()
+            .addOnSuccessListener { result ->
+                val hasDoc: Boolean = result.exists()
+                onSuccess(hasDoc)
+            }
+            .addOnFailureListener {
+                onError(it)
+            }
+    }
+
+    override suspend fun deleteRequestInMyList(
+        myEmail: String,
+        personEmail: String,
+        onResult: (Throwable?) -> Unit
+    ) {
+        Firebase.firestore.collection(myEmail).document(REQUESTED_LIST)
+            .collection(REQUESTED_EMAIL).document(personEmail)
+            .delete()
             .addOnCompleteListener { onResult(it.exception) }
     }
 
-    override suspend fun updatePostNum(onResult: (Throwable?) -> Unit) {
-        Firebase.firestore
-            .collection(this.myEmail).document("userInfo")
-            .update("postNum", FieldValue.increment(1))
+    override suspend fun deleteRequestInUserList(
+        myEmail: String,
+        personEmail: String,
+        onResult: (Throwable?) -> Unit
+    ) {
+        Firebase.firestore.collection(personEmail).document(REQUESTED_LIST)
+            .collection(REQUESTED_EMAIL).document(myEmail)
+            .delete()
             .addOnCompleteListener { onResult(it.exception) }
     }
 
-    override suspend fun uploadFile(uri: Uri, onResult: (Throwable?) -> Unit) {
-        val storageRef = storage.reference
-        val imagesRef: StorageReference = storageRef.child("${this.myEmail}/post/")
-        imagesRef.child(postId).putFile(uri)
+    override suspend fun deleteUserEmailInMyWaitingList(
+        myEmail: String,
+        personEmail: String,
+        onResult: (Throwable?) -> Unit
+    ) {
+        Firebase.firestore.collection(myEmail).document(WAITING_LIST)
+            .collection(WAITING_EMAIL).document(personEmail)
+            .delete()
             .addOnCompleteListener {
                 onResult(it.exception)
             }
     }
 
-    override suspend fun getRequest(
+    override suspend fun deleteMyEmailInUserWaitingList(
+        myEmail: String,
+        personEmail: String,
+        onResult: (Throwable?) -> Unit
+    ) {
+        Firebase.firestore.collection(personEmail).document(WAITING_LIST)
+            .collection(WAITING_EMAIL).document(myEmail)
+            .delete()
+            .addOnCompleteListener {
+                onResult(it.exception)
+            }
+    }
+
+    override suspend fun getMyInfo(email: String, onError: (Throwable) -> Unit,onSuccess: (User) -> Unit) {
+        Firebase.firestore.collection(email).document("userInfo")
+            .get()
+            .addOnSuccessListener { result ->
+                onSuccess(result.toObject()?: User())
+            }
+            .addOnFailureListener { error ->
+                onError(error)
+            }
+    }
+
+
+
+    override suspend fun getStoryUserInfo(
+        myEmail: String,
+        onSuccess: (List<User>) -> Unit,
+        onError: (Throwable) -> Unit
+    ) {
+//        val list : ArrayList<User> = arrayListOf()
+//        Firebase.firestore.collection(this.myEmail).document("userInfo")
+//            .get()
+//            .addOnSuccessListener { result ->
+//                list.add(result.toObject()?: User())
+//            }
+    }
+
+    override suspend fun getFeed(
+        email: String,
+        onError: (Throwable) -> Unit,
+        onSuccess: (List<Post>) -> Unit
+    ) {
+        val postList = mutableListOf<Post>()
+        var cnt = 0
+        Firebase.firestore
+            .collection(email).document("post")
+            .collection("postId")
+            .get()
+            .addOnSuccessListener { documents ->
+                for(document in documents){
+                    Log.d(TAG, "getFeed: document size - ${documents.size()}")
+                    if(cnt == documents.size()-1){
+                        onSuccess(postList)
+                    }
+                    postList.add(cnt, document.toObject())
+                    cnt++
+                }
+            }
+            .addOnFailureListener { onError(it)}
+
+    }
+
+
+    override fun getUserEmail(): String? {
+        return Firebase.auth.currentUser?.email
+    }
+
+    override suspend fun savePost(
+        email: String,
+        post: Post,
+        onResult: (Throwable?) -> Unit
+    ) {
+        Log.d(TAG, "Post: $post ")
+        Firebase.firestore
+            .collection(email).document("post")
+            .collection("postId").document(post.postId.toString())
+            .set(post)
+            .addOnCompleteListener { onResult(it.exception) }
+    }
+
+    override suspend fun sendRequestToUser(
+        myEmail: String,
+        personEmail: String,
+        onResult: (Throwable?) -> Unit
+    ) {
+        Firebase.firestore.collection(personEmail).document(REQUESTED_LIST)
+            .collection(REQUESTED_EMAIL).document(myEmail)
+            .set(Email(email = myEmail))
+            .addOnCompleteListener {
+                onResult(it.exception)
+            }
+    }
+
+    override suspend fun loadMyRequestedList(
+        myEmail: String,
         onError: (Throwable) -> Unit,
         onSuccess: (List<User>) -> Unit
     ) {
 
-        Firebase.firestore.collection(this.myEmail).document(REQUESTED_LIST)
+        Firebase.firestore.collection(myEmail).document(REQUESTED_LIST)
             .collection(REQUESTED_EMAIL)
             .get()
             .addOnSuccessListener { result ->
@@ -86,39 +244,74 @@ class FirebaseRepositoryImpl @Inject constructor() : FirebaseRepository {
             }
     }
 
-    override suspend fun checkRequest(
-        personEmail: String,
-        onError: (Throwable) -> Unit,
-        onSuccess: (Boolean) -> Unit
+    override suspend fun loadStories(
+        myEmail: String,
+        onSuccess: (List<User>) -> Unit,
+        onError: (Throwable) -> Unit
     ) {
-        Firebase.firestore.collection(this.myEmail).document(WAITING_LIST)
-            .collection(WAITING_EMAIL).document(personEmail)
-            .get()
-            .addOnSuccessListener { result ->
-                val hasDoc: Boolean = result.exists()
-                onSuccess(hasDoc)
-            }
-            .addOnFailureListener {
-                onError(it)
-            }
+
     }
 
-    override suspend fun deleteFollowRequest(
-        personEmail: String,
+
+
+    override suspend fun updatePostNum(
+        myEmail: String,
         onResult: (Throwable?) -> Unit
     ) {
-        Firebase.firestore.collection(this.myEmail).document(REQUESTED_LIST)
-            .collection(REQUESTED_EMAIL).document(personEmail)
-            .delete()
+        Firebase.firestore
+            .collection(myEmail).document("userInfo")
+            .update("postNum", FieldValue.increment(1))
             .addOnCompleteListener { onResult(it.exception) }
     }
 
-    override suspend fun updateFollower(
+    override suspend fun updateFollowingNum(
+        email: String,
+        onResult: (Throwable?) -> Unit
+    ) {
+        Firebase.firestore
+            .collection(email).document("userInfo")
+            .update("following", FieldValue.increment(1))
+            .addOnCompleteListener { onResult(it.exception) }
+    }
+
+    override suspend fun updateFollowerNum(
+        email: String,
+        onResult: (Throwable?) -> Unit
+    ) {
+
+        Firebase.firestore
+            .collection(email).document("userInfo")
+            .update("follower", FieldValue.increment(1))
+            .addOnCompleteListener { onResult(it.exception) }
+    }
+
+    override suspend fun uploadFile(
+        myEmail: String,
+        postId: String,
+        uri: Uri,
+        onResult: (Throwable?) -> Unit
+    ) {
+        Log.d(TAG, "email: $myEmail")
+        Log.d(TAG, "uri: $uri")
+        val storageRef = Firebase.storage.reference
+        val imagesRef: StorageReference = storageRef.child("$myEmail/post/")
+        imagesRef.child(postId).putFile(uri)
+            .addOnCompleteListener {
+                onResult(it.exception)
+            }
+    }
+
+
+
+
+
+    override suspend fun updateMyFollowerList(
+        myEmail: String,
         personEmail: String,
         onResult: (Throwable?) -> Unit
     ) {
         val email = Email(email = personEmail)
-        Firebase.firestore.collection(this.myEmail).document(FOLLOWER_LIST)
+        Firebase.firestore.collection(myEmail).document(FOLLOWER_LIST)
             .collection(FOLLOWER_EMAIL).document(personEmail)
             .set(email)
             .addOnCompleteListener {
@@ -126,47 +319,29 @@ class FirebaseRepositoryImpl @Inject constructor() : FirebaseRepository {
             }
     }
 
-    override suspend fun deleteFollowWaitingList(
-        personEmail: String,
-        onResult: (Throwable?) -> Unit
-    ) {
-        Firebase.firestore.collection(personEmail).document(WAITING_LIST)
-            .collection(WAITING_EMAIL).document(this.myEmail)
-            .delete()
-            .addOnCompleteListener {
-                onResult(it.exception)
-            }
-    }
 
-    override suspend fun updateFollowing(
+
+    override suspend fun updateUserFollowingList(
+        myEmail: String,
         personEmail: String,
         onResult: (Throwable?) -> Unit
     ) {
         Firebase.firestore.collection(personEmail).document(FOLLOWING_LIST)
-            .collection(FOLLOWING_EMAIL).document(this.myEmail)
-            .set(Email(email = this.myEmail))
-            .addOnCompleteListener {
-                onResult(it.exception)
-            }
-    }
-
-    override suspend fun sendFollowRequest(
-        personEmail: String,
-        onResult: (Throwable?) -> Unit
-    ) {
-        Firebase.firestore.collection(personEmail).document(REQUESTED_LIST)
-            .collection(REQUESTED_EMAIL).document(this.myEmail)
+            .collection(FOLLOWING_EMAIL).document(myEmail)
             .set(Email(email = myEmail))
             .addOnCompleteListener {
                 onResult(it.exception)
             }
     }
 
-    override suspend fun updateFollowWaitingList(
+
+
+    override suspend fun updateMyWaitingList(
+        myEmail: String,
         personEmail: String,
         onResult: (Throwable?) -> Unit
     ) {
-        Firebase.firestore.collection(this.myEmail).document(WAITING_LIST)
+        Firebase.firestore.collection(myEmail).document(WAITING_LIST)
             .collection(WAITING_EMAIL).document(personEmail)
             .set(Email(email = personEmail))
             .addOnCompleteListener {
@@ -174,21 +349,11 @@ class FirebaseRepositoryImpl @Inject constructor() : FirebaseRepository {
             }
     }
 
-    override suspend fun checkFollowerList(
-        personEmail: String,
-        onError: (Throwable) -> Unit,
-        onSuccess: (Boolean) -> Unit
-    ) {
-        Firebase.firestore.collection(this.myEmail).document(FOLLOWER_LIST)
-            .collection(FOLLOWER_EMAIL).document(personEmail)
-            .get()
-            .addOnSuccessListener { result ->
-                val hasDoc: Boolean = result.exists()
-                onSuccess(hasDoc)
-            }
-            .addOnFailureListener {
-                onError(it)
-            }
+
+    private suspend fun checkPost(
+
+    ){
+
     }
 
 

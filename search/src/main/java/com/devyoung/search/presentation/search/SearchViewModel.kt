@@ -12,8 +12,12 @@ class SearchViewModel @Inject constructor(
 
 ) : InstaViewModel() {
 
-
     fun onSearchClick(openScreen: (String) -> Unit ) {
         openScreen(Screen.SearchDetail.route)
     }
+
+    fun onImgClick(){
+
+    }
+
 }

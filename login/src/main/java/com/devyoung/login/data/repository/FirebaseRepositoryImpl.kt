@@ -16,14 +16,18 @@ class FirebaseRepositoryImpl @Inject constructor() : FirebaseRepository {
         return Firebase.auth.currentUser != null
     }
 
-    override fun userLogin(email: String, password: String, onResult: (Throwable?) -> Unit) {
+    override suspend fun getUserEmail(): String? {
+        return Firebase.auth.currentUser?.email
+    }
+
+    override suspend fun userLogin(email: String, password: String, onResult: (Throwable?) -> Unit) {
         Firebase.auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener {
                 onResult(it.exception)
             }
     }
 
-    override fun userSignUp(email: String, password: String, onResult: (Throwable?) -> Unit) {
+    override suspend fun userSignUp(email: String, password: String, onResult: (Throwable?) -> Unit) {
         Firebase.auth.createUserWithEmailAndPassword(email,password)
             .addOnCompleteListener { onResult(it.exception) }
     }

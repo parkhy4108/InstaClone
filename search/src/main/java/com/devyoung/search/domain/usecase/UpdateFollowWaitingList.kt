@@ -8,9 +8,10 @@ class UpdateFollowWaitingList @Inject constructor(
     private val repository: FirebaseRepository
 ) {
     suspend operator fun invoke(
+        email: String,
         personEmail: String,
         onResult: (Throwable?) -> Unit
     ) {
-        return repository.updateFollowWaitingList(personEmail, onResult)
+        return repository.updateFollowWaitingList(email, personEmail, onResult)
     }
 }

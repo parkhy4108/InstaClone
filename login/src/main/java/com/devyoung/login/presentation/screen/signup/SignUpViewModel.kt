@@ -62,7 +62,7 @@ class SignUpViewModel @Inject constructor(
                 )
             ) { exception ->
                 if(exception == null){
-                    openAndPopUp(Screen.Home.route, Screen.SignUp.route)
+                    openAndPopUp(BottomBarScreen.Feed.route, Screen.SignUp.route)
                 }else onError(exception)
             }
         }
