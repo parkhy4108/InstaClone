@@ -1,14 +1,10 @@
 package com.devyoung.instaclone.presentation
 
-import android.content.ContentValues
-import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -19,17 +15,17 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.devyoung.base.ARG_KEY
-import com.devyoung.base.BottomBarScreen
-import com.devyoung.base.ID_KEY
-import com.devyoung.base.Screen
+import com.devyoung.base.*
 import com.devyoung.feeds.presentation.screen.feed.FeedScreen
 import com.devyoung.feeds.presentation.screen.followerRequest.FollowerRequestScreen
 import com.devyoung.feeds.presentation.screen.post.PostScreen
+import com.devyoung.feeds.presentation.screen.storyAdd.StoryAddScreen
+import com.devyoung.feeds.presentation.screen.userStory.UserStoryScreen
 import com.devyoung.login.presentation.screen.emailLogin.LoginScreen
 import com.devyoung.login.presentation.screen.first.FirstScreen
 import com.devyoung.login.presentation.screen.signup.SignUpScreen
-import com.devyoung.profile.presentation.ProfileScreen
+import com.devyoung.profile.presentation.profileEdit.EditScreen
+import com.devyoung.profile.presentation.profileHome.ProfileScreen
 import com.devyoung.search.presentation.detail.SearchDetailScreen
 import com.devyoung.search.presentation.search.SearchScreen
 import com.devyoung.search.presentation.user.UserScreen
@@ -74,28 +70,27 @@ fun InstaCloneApp() {
     }
 }
 
-
 fun NavGraphBuilder.instaCloneGraph(appState: AppState) {
-
     composable(route = Screen.First.route) {
         FirstScreen(
-            openAndPopUp = { route , popUp -> appState.navigateAndPopUp(route, popUp)},
+            openAndPopUp = { route, popUp -> appState.navigateAndPopUp(route, popUp) },
+            navigateBottomBar = { route -> appState.startBottomBarDestination(route) }
         )
     }
     composable(route = Screen.Login.route) {
         LoginScreen(
-            openAndPopUp = { route , popUp -> appState.navigateAndPopUp(route,popUp) },
+            navigateBottomBar = { route -> appState.startBottomBarDestination(route) },
             openScreen = { route -> appState.navigate(route) }
         )
     }
     composable(route = Screen.SignUp.route) {
         SignUpScreen(
-            openAndPopUp = { route, popUp -> appState.navigateAndPopUp(route,popUp ) }
+            navigateBottomBar = { route -> appState.startBottomBarDestination(route) },
         )
     }
     composable(
         route = BottomBarScreen.Feed.route,
-    ){
+    ) {
         FeedScreen(
             openScreen = { route -> appState.navigate(route) }
         )
@@ -104,10 +99,18 @@ fun NavGraphBuilder.instaCloneGraph(appState: AppState) {
         route = BottomBarScreen.Profile.route,
     ) {
         ProfileScreen(
+            openScreen = { route -> appState.navigate(route) },
             restartApp = { route -> appState.clearAndNavigate(route) },
         )
     }
-    composable(route = BottomBarScreen.Search.route){
+    composable(
+        route = Screen.EditProfile.route,
+    ) {
+        EditScreen(
+            popUpScreen = { appState.popUp() }
+        )
+    }
+    composable(route = BottomBarScreen.Search.route) {
         SearchScreen(
             openScreen = { route -> appState.navigate(route) }
         )
@@ -117,12 +120,12 @@ fun NavGraphBuilder.instaCloneGraph(appState: AppState) {
             popUpScreen = { appState.popUp() }
         )
     }
-    composable(route = Screen.FollowerRequest.route){
+    composable(route = Screen.FollowerRequest.route) {
         FollowerRequestScreen(
             popUpScreen = { appState.popUp() }
         )
     }
-    composable(route = Screen.SearchDetail.route){
+    composable(route = Screen.SearchDetail.route) {
         SearchDetailScreen(
             openScreen = { route -> appState.navigate(route) },
             popUpScreen = { appState.popUp() }
@@ -130,16 +133,51 @@ fun NavGraphBuilder.instaCloneGraph(appState: AppState) {
     }
     composable(
         route = Screen.User.route,
-        arguments = listOf(navArgument(ARG_KEY){
-            type = NavType.StringType
-            defaultValue = ""
-        })
-    ){
+        arguments = listOf(
+            navArgument(ARG_KEY) {
+                type = NavType.StringType
+                defaultValue = ""
+            }
+        )
+    ) {
         val id = it.arguments?.getString(ARG_KEY)
         UserScreen(
             id = id,
+            popUpScreen = { appState.popUp() },
+            openScreen = { route -> appState.navigate(route) }
+        )
+    }
+    composable(
+        route = Screen.UserStory.route,
+        arguments = listOf(
+            navArgument(ARG_NICKNAME) {
+                type = NavType.StringType
+                defaultValue = ""
+            },
+            navArgument(ARG_USERIMG) {
+                type = NavType.StringType
+                defaultValue = ""
+            },
+            navArgument(ARG_STORYIMG) {
+                type = NavType.StringType
+                defaultValue = ""
+            }
+        )
+    ) {
+        val userNickName = it.arguments?.getString(ARG_NICKNAME)
+        val userImage = it.arguments?.getString(ARG_USERIMG)
+        val storyImage = it.arguments?.getString(ARG_STORYIMG)
+        UserStoryScreen(
+            userNickName = userNickName,
+            userImage = userImage,
+            storyImage = storyImage,
             popUpScreen = { appState.popUp() }
         )
+    }
+    composable(
+        route = Screen.StoryAdd.route
+    ) {
+        StoryAddScreen(popUpScreen = { appState.popUp() })
     }
 }
 
@@ -147,25 +185,21 @@ fun NavGraphBuilder.instaCloneGraph(appState: AppState) {
 fun BottomNavigationBar(
     tabs: List<BottomBarScreen>,
     currentRoute: String,
-    navigateToRoute: (String)->Unit,
+    navigateToRoute: (String) -> Unit,
     modifier: Modifier
-){
-
-//    val routes = remember { tabs.map { it.route } }
+) {
     val currentSection = tabs.first { it.route == currentRoute }
 
     BottomNavigation(
-        modifier= modifier
+        modifier = modifier
             .height(45.dp)
             .graphicsLayer {
                 shape = RectangleShape
                 clip = true
-            }
-        ,
+            },
         backgroundColor = Color.White,
         contentColor = Color.Black
     ) {
-        Log.d(ContentValues.TAG, "BottomNavigationBar: $tabs")
         tabs.forEach { section ->
             val selected = section == currentSection
             BottomNavigationItem(
@@ -183,10 +217,3 @@ fun BottomNavigationBar(
         }
     }
 }
-
-
-
-
-
-
-

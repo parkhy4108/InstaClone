@@ -32,7 +32,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = Versions.compose_version
+        kotlinCompilerExtensionVersion = Versions.compose_compiler_version
     }
 }
 dependencies {
@@ -40,10 +40,10 @@ dependencies {
     api(Libs.Compose.ui)
     api(Libs.Compose.material)
     api(Libs.lifecycleRuntime)
+    api(Libs.lifecycleState)
     api(Libs.activityCompose)
     api(Libs.Compose.navigation)
     api(Libs.Compose.livedata)
-    //Firebase
     api(platform(Libs.FireBase.bom))
     api(Libs.FireBase.analyticsKtx)
     api(Libs.FireBase.auth)
@@ -51,7 +51,7 @@ dependencies {
     api(Libs.FireBase.firestoreKTX)
     api(Libs.FireBase.storageKTX)
     api(Libs.skydovesGlide)
-    api(Libs.coil)
+    api(Libs.Glide.glide)
 
     testImplementation(Libs.Test.Junit)
     androidTestImplementation(Libs.Test.extJunit)

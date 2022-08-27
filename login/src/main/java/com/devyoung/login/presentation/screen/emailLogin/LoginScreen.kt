@@ -24,7 +24,7 @@ import com.devyoung.base.R.string as AppText
 
 @Composable
 fun LoginScreen(
-    openAndPopUp: (String, String) -> Unit,
+    navigateBottomBar: (String) -> Unit,
     openScreen: (String) -> Unit,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
@@ -68,6 +68,8 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(18.dp))
 
+
+
         UserPasswordField(
             value = uiState.userPassword,
             onNewValue = viewModel::onPasswordChange,
@@ -86,8 +88,10 @@ fun LoginScreen(
             text = AppText.login,
             enable = isValidate,
             modifier = Modifier
+                .fillMaxWidth()
+                .padding(50.dp, 0.dp)
         ) {
-            viewModel.onLoginClick(openAndPopUp)
+            viewModel.onLoginClick(navigateBottomBar)
         }
 
         Spacer(modifier = Modifier.height(18.dp))
@@ -96,6 +100,8 @@ fun LoginScreen(
             text = AppText.signUp,
             enable = true,
             modifier = Modifier
+                .fillMaxWidth()
+                .padding(50.dp, 0.dp)
         ) {
             viewModel.onSignUpClick(openScreen)
         }

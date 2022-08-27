@@ -7,7 +7,7 @@ import javax.inject.Inject
 class SaveUserInfo @Inject constructor(
     private val repository: FirestoreRepository
 ) {
-    operator fun invoke(user: User, onResult: (Throwable?)-> Unit) {
-        repository.saveUserInfo(user, onResult)
+    operator fun invoke(user: User, img: ByteArray,onResult: (Throwable?)-> Unit) {
+        repository.saveUserInfo(user, img,onResult)
     }
 }

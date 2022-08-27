@@ -1,8 +1,8 @@
 object Versions {
 
-    const val coreKTX = "1.7.0"
+    const val coreKTX = "1.8.0"
 
-    const val lifecycleRunTimeKTX = "2.3.1"
+    const val lifecycleRunTimeKTX = "2.5.1"
 
     const val activityCompose = "1.3.1"
 
@@ -12,7 +12,8 @@ object Versions {
     const val extJunit = "1.1.3"
 
     //Compose
-    const val compose_version = "1.2.0-beta02"
+    const val compose_version = "1.2.1"
+    const val compose_compiler_version = "1.3.0"
     const val navigation = "2.4.2"
 
     //Hilt
@@ -24,7 +25,7 @@ object Versions {
     const val room = "2.4.2"
 
     //Firebase
-    const val firebaseBom = "30.1.0"
+    const val firebaseBom = "30.3.2"
 
     //Glide
     const val skyGlide = "1.4.7"
@@ -37,7 +38,11 @@ object Versions {
 
 object Libs {
 
-    const val lifecycleRuntime = "androidx.lifecycle:lifecycle-runtime-ktx:${Versions.lifecycleRunTimeKTX}"
+//    const val lifecycleRuntime = "androidx.lifecycle:lifecycle-runtime-ktx:${Versions.lifecycleRunTimeKTX}"
+
+    const val lifecycleRuntime = "androidx.lifecycle:lifecycle-viewmodel-compose:${Versions.lifecycleRunTimeKTX}"
+    const val lifecycleState = "androidx.lifecycle:lifecycle-viewmodel-savedstate:${Versions.lifecycleRunTimeKTX}"
+    const val lifecycleCompiler = "androidx.lifecycle:lifecycle-compiler:${Versions.lifecycleRunTimeKTX}"
 
     const val coreKTX = "androidx.core:core-ktx:${Versions.coreKTX}"
 
@@ -84,7 +89,6 @@ object Libs {
         const val component2 = "com.google.firebase.storage.ktx.component2"
     }
 
-    const val facebook = "com.facebook.android:facebook-login:latest.release"
     const val skydovesGlide = "com.github.skydoves:landscapist-glide:${Versions.skyGlide}"
 
     object Glide{
@@ -92,5 +96,4 @@ object Libs {
         const val compiler = "com.github.bumptech.glide:compiler:${Versions.glide}"
     }
 
-    const val coil = "io.coil-kt:coil-compose:${Versions.coil}"
 }

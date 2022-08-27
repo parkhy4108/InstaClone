@@ -17,7 +17,6 @@ object FeedModule {
     @Singleton
     fun provideFirebaseRepository(): FirebaseRepository = FirebaseRepositoryImpl()
 
-
     @Provides
     @Singleton
     fun provideUseCases(firebaseRepository: FirebaseRepository): UseCases {
@@ -27,7 +26,6 @@ object FeedModule {
             deleteRequestInMyList = DeleteRequestInMyList(firebaseRepository),
             deleteMyEmailInUserWaitingList = DeleteMyEmailInUserWaitingList(firebaseRepository),
             loadMyRequestedList = LoadMyRequestedList(firebaseRepository),
-            getUserEmail = GetUserEmail(firebaseRepository),
             savePost = SavePost(firebaseRepository),
             sendRequestToUser = SendRequestToUser(firebaseRepository),
             updateMyFollowerList = UpdateMyFollowerList(firebaseRepository),
@@ -35,12 +33,15 @@ object FeedModule {
             updateMyWaitingList = UpdateMyWaitingList(firebaseRepository),
             updatePostNum = UpdatePostNum(firebaseRepository),
             uploadFile = UploadFile(firebaseRepository),
+            getUserEmail = GetUserEmail(firebaseRepository),
             getMyInfo = GetMyInfo(firebaseRepository),
             getFeed = GetFeed(firebaseRepository),
+            getStories = GetStories(firebaseRepository),
             deleteUserEmailInMyWaitingList = DeleteUserEmailInMyWaitingList(firebaseRepository),
             deleteRequestInUserList = DeleteRequestInUserList(firebaseRepository),
             updateFollowerNum = UpdateFollowerNum(firebaseRepository),
-            updateFollowingNum = UpdateFollowingNum(firebaseRepository)
+            updateFollowingNum = UpdateFollowingNum(firebaseRepository),
+            saveStoryImg = SaveStoryImg(firebaseRepository)
         )
     }
 }

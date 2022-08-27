@@ -1,6 +1,6 @@
 package com.devyoung.search.domain.usecase
 
-import com.devyoung.search.data.User
+import com.devyoung.search.data.model.User
 import com.devyoung.search.domain.repository.FirebaseRepository
 import javax.inject.Inject
 

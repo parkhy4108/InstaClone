@@ -24,15 +24,22 @@ import com.devyoung.login.presentation.screen.composable.UserNickNameField
 import com.devyoung.login.presentation.screen.composable.UserPasswordField
 import com.devyoung.login.presentation.screen.emailLogin.addFocusCleaner
 import com.devyoung.base.R.string as AppText
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
+import androidx.compose.foundation.Image
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
+import com.devyoung.base.R
+import java.io.ByteArrayOutputStream
+
 
 @Composable
 fun SignUpScreen(
-    openAndPopUp: (String, String) -> Unit,
+    navigateBottomBar: (String) -> Unit,
     viewModel: SignUpViewModel = hiltViewModel()
 ) {
-
-    Log.d(TAG, "SignUpScreen 진입")
-
     val signUpState by viewModel.signUpState
 
     val isValidate by derivedStateOf {
@@ -41,11 +48,15 @@ fun SignUpScreen(
     }
     val focusRequester by remember { mutableStateOf(FocusRequester()) }
     val focusManager = LocalFocusManager.current
-
+    val drawable = ContextCompat.getDrawable(LocalContext.current, R.drawable.ic_empty_user_img)
+    val bitmap = drawable!!.toBitmap()
+    val baos = ByteArrayOutputStream()
+    bitmap.compress(Bitmap.CompressFormat.JPEG,100,baos)
+    val data = baos.toByteArray()
+    Log.d("TAG", "emptyImg = $data")
     Column(
         modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
+            .fillMaxSize()
             .addFocusCleaner(focusManager),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -87,6 +98,8 @@ fun SignUpScreen(
 
         Spacer(modifier = Modifier.height(18.dp))
 
+
+
         UserNickNameField(
             signUpState.userNickName,
             viewModel::onNickNameChange,
@@ -106,12 +119,13 @@ fun SignUpScreen(
             enable = isValidate,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(40.dp, 0.dp)
+                .padding(50.dp, 0.dp)
         ) {
-            viewModel.onSignUpClick(openAndPopUp)
+            viewModel.onSignUpClick(
+                data,
+                navigateBottomBar
+            )
         }
     }
-
-
 }
 

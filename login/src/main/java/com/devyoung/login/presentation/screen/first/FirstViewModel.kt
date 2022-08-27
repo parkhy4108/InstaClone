@@ -10,9 +10,9 @@ import javax.inject.Inject
 class FirstViewModel @Inject constructor(
     private val hasUser: HasUser,
 ) : InstaViewModel() {
-    fun appStart(openAndPopUp: (String, String)-> Unit){
+    fun appStart(openAndPopUp: (String, String)-> Unit, navigateBottomBar: (String)->Unit){
         if(hasUser()) {
-            openAndPopUp(BottomBarScreen.Feed.route, Screen.First.route)
+            navigateBottomBar(BottomBarScreen.Feed.route)
         }
         else {
             openAndPopUp(Screen.Login.route, Screen.First.route)

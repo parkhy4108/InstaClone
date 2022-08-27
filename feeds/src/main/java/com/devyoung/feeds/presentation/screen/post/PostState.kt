@@ -5,5 +5,6 @@ import android.net.Uri
 data class PostState(
     val imageUrl: Uri? = null,
     val comments: String = "",
-    val loading: Boolean = false
-)
+    val circleLoading: Boolean = false,
+    val openDialog: Boolean = false
+    )

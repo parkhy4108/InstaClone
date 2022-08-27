@@ -7,9 +7,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 @Composable
 fun FirstScreen(
     openAndPopUp: (String, String) -> Unit,
+    navigateBottomBar: (String) -> Unit,
     viewModel: FirstViewModel = hiltViewModel()
 ) {
     LaunchedEffect(Unit){
-        viewModel.appStart(openAndPopUp)
+        viewModel.appStart(openAndPopUp,navigateBottomBar)
     }
 }

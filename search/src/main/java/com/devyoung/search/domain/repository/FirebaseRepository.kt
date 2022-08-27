@@ -1,12 +1,11 @@
 package com.devyoung.search.domain.repository
 
-import com.devyoung.search.data.Email
-import com.devyoung.search.data.User
+import com.devyoung.search.data.model.User
 
 interface FirebaseRepository {
     fun getMyAccountEmail() : String?
     suspend fun getUserInfo(userEmail: String, onError:(Throwable)->Unit, onSuccess:(User)->Unit)
-    suspend fun searchUser(userNickname: String, onError:(Throwable, String)->Unit, onSuccess:(String, String)->Unit)
+    suspend fun searchUser(userNickname: String, onError:(Throwable)->Unit, onSuccess:(String, String)->Unit)
     suspend fun getAllPosts(userEmail: String, onError: (Throwable) -> Unit, onSuccess: (ArrayList<String>) -> Unit)
     suspend fun checkRequest(email: String, personEmail: String, onError: (Throwable) -> Unit, onSuccess: (Boolean) -> Unit)
     suspend fun checkFollowingList(email: String, personEmail: String, onError: (Throwable) -> Unit, onSuccess: (Boolean) -> Unit)

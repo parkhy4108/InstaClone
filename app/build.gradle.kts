@@ -39,13 +39,17 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = Versions.compose_version
+        kotlinCompilerExtensionVersion = Versions.compose_compiler_version
     }
     packagingOptions {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    hilt {
+        enableAggregatingTask =true
+    }
+
 }
 dependencies {
     implementation(project(":base"))
@@ -53,22 +57,20 @@ dependencies {
     implementation(project(":login"))
     implementation(project(":profile"))
     implementation(project(":search"))
-
-    //Hilt
     implementation(Libs.Hilt.hiltAndroid)
     implementation(Libs.Hilt.navigationCompiler)
     kapt(Libs.Hilt.hiltCompiler)
-    //Room
     implementation(Libs.Room.runtime)
     implementation(Libs.Room.ktx)
     kapt(Libs.Room.compiler)
-
-    testImplementation (Libs.Test.Junit)
-    androidTestImplementation (Libs.Test.extJunit)
-    androidTestImplementation (Libs.Test.espresso)
-    androidTestImplementation (Libs.Compose.testJunit)
-    debugImplementation (Libs.Compose.uiTooling)
-    debugImplementation (Libs.Compose.testManifest)
+    kapt(Libs.lifecycleCompiler)
+    kapt(Libs.Glide.compiler)
+    testImplementation(Libs.Test.Junit)
+    androidTestImplementation(Libs.Test.extJunit)
+    androidTestImplementation(Libs.Test.espresso)
+    androidTestImplementation(Libs.Compose.testJunit)
+    debugImplementation(Libs.Compose.uiTooling)
+    debugImplementation(Libs.Compose.testManifest)
 }
 kapt {
     correctErrorTypes = true

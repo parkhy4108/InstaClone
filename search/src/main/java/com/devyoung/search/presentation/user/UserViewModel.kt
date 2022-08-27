@@ -3,6 +3,7 @@ package com.devyoung.search.presentation.user
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.devyoung.base.InstaViewModel
+import com.devyoung.base.Screen
 import com.devyoung.search.domain.usecase.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
@@ -30,33 +31,23 @@ class UserViewModel @Inject constructor(
 
     private val myEmail = getMyAccountEmail()!!
 
-    fun initialize(personEmail: String) {
-        viewModelScope.launch {
-            if(personEmail == myEmail){
-                userState.value = userState.value.copy(searchMyself = true)
-            }
-            userState.value = userState.value.copy(screenLoading = true)
-            delay(4000)
-            getPersonInfo(personEmail)
-            getPersonPosts(personEmail)
-            checkWaitingList(personEmail)
-            checkFollowingList(personEmail)
-            userState.value = userState.value.copy(screenLoading = false)
+    fun getPersonInfo(personEmail: String) {
+        if(personEmail == myEmail){
+            userState.value = userState.value.copy(searchMyself = true)
         }
-    }
-
-    private fun getPersonInfo(personEmail: String) {
         viewModelScope.launch(exceptionHandler) {
             getUserInfo(personEmail, ::onError) {
                 userState.value = userState.value.copy(user = it)
+                checkWaitingList(personEmail)
             }
         }
     }
 
-    private fun getPersonPosts(personEmail: String){
+    fun getPersonPosts(personEmail: String){
         viewModelScope.launch(exceptionHandler) {
             getAllPosts(userEmail = personEmail, ::onError) {
                 userState.value = userState.value.copy(post = it)
+
             }
         }
     }
@@ -65,6 +56,7 @@ class UserViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             checkRequest(email = myEmail, personEmail = personEmail, ::onError){ boolean ->
                 userState.value = userState.value.copy(waiting = boolean)
+                checkFollowingList(personEmail)
             }
         }
     }
@@ -74,14 +66,18 @@ class UserViewModel @Inject constructor(
             checkFollowingList(email = myEmail, personEmail = personEmail,::onError) { boolean ->
                 userState.value = userState.value.copy(following = boolean)
             }
+            userState.value = userState.value.copy(circleLoading = false)
         }
     }
 
-   fun onFollowButtonClicked(personEmail: String){
+   fun onFollowButtonClicked(personEmail: String, openScreen: (String) -> Unit){
        if(userState.value.waiting) {
            userState.value = userState.value.copy(waiting = false)
            deleteFollowRequest(personEmail)
            deleteFollowWaitingList(personEmail)
+       }
+       else if(userState.value.searchMyself){
+           openScreen(Screen.EditProfile.route)
        }
        else if(userState.value.following){
            userState.value = userState.value.copy(openDialog = true)

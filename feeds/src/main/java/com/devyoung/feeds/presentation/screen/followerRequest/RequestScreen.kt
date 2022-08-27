@@ -50,7 +50,7 @@ fun FollowerRequestScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(10.dp),
-            onBackClicked = {viewModel.onBack(popUpScreen)}
+            onBackClicked = { viewModel.onBack(popUpScreen) }
         )
         Box(modifier = Modifier.fillMaxSize()){
             FollowRequestList(
@@ -107,7 +107,7 @@ fun FollowRequestList(
         items(items = userList){ user ->
             FollowerUserCard(
                 user = user,
-                isSelected = selectedState[user.userEmail]?: 4,
+                isSelected = selectedState[user.userEmail],
                 onFollowButtonClicked = onFollowButtonClicked,
                 onDeleted = onDeleted,
                 modifier = Modifier.fillMaxWidth()
@@ -119,7 +119,7 @@ fun FollowRequestList(
 @Composable
 fun FollowerUserCard (
     user: User,
-    isSelected: Int,
+    isSelected: Int?,
     onFollowButtonClicked:(User)->Unit,
     onDeleted:(User)-> Unit,
     modifier: Modifier = Modifier

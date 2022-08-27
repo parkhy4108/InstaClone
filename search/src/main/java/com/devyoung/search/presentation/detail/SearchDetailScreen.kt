@@ -1,7 +1,5 @@
 package com.devyoung.search.presentation.detail
 
-import android.net.Uri
-import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,7 +15,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -31,7 +28,9 @@ import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.devyoung.base.composable.CircularIndicatorProgressBar
 import com.devyoung.base.composable.ImgLoad
+import com.devyoung.base.composable.addFocusCleaner
 import com.devyoung.base.R.drawable as AppImg
+import androidx.compose.ui.focus.FocusManager
 
 @Composable
 fun SearchDetailScreen(
@@ -57,37 +56,37 @@ fun SearchDetailScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp),
+                .size(70.dp)
+                .padding(10.dp)
         ) {
-            BackButton(onClick = { viewModel.onBack(popUpScreen) })
+            BackButton(
+                modifier = Modifier
+                    .weight(0.1f)
+                    .fillMaxHeight(),
+                onClick = { viewModel.onBack(popUpScreen) }
+            )
+
             SearchTextField(
                 text = searchDetailState.searchText,
                 onValueChange = viewModel::onSearchTextChanged,
                 onTextCleared = viewModel::onSearchTextCleared,
                 onSearch = viewModel::onSearch,
+                focusManager = focusManager,
                 modifier = Modifier
-                    .clip(RoundedCornerShape(5.dp))
-                    .fillMaxWidth()
-                    .height(48.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .weight(0.9f)
                     .focusRequester(focusRequester)
                     .pointerInput(Unit) {
                         detectTapGestures(onTap = {
                             focusManager.clearFocus()
                         })
-                    }
-            )
-        }
-        Spacer(
-            modifier = Modifier
-                .height(1.dp)
-                .background(Color.LightGray)
-                .fillMaxWidth()
-        )
+                    },
 
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            if (searchDetailState.view) {
+                )
+        }
+        Divider(color = Color.LightGray)
+        Box {
+            if (searchDetailState.userCardView) {
                 UserCard(
                     modifier = Modifier
                         .size(60.dp)
@@ -98,29 +97,19 @@ fun SearchDetailScreen(
                     onClick = { viewModel.onUserClick(openScreen, searchDetailState.userEmail) }
                 )
             }
-            CircularIndicatorProgressBar(isDisplayed = searchDetailState.loading)
-
+            CircularIndicatorProgressBar(isDisplayed = searchDetailState.circleLoading)
         }
     }
 }
 
 
-
-
-fun Modifier.addFocusCleaner(focusManager: FocusManager, doOnClear: () -> Unit = {}): Modifier {
-    return this.pointerInput(Unit) {
-        detectTapGestures(onTap = {
-            doOnClear()
-            focusManager.clearFocus()
-        })
-    }
-}
-
 @Composable
 fun BackButton(
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier
 ) {
     IconButton(
+        modifier = modifier,
         onClick = { onClick() }
     ) {
         Icon(painter = painterResource(id = AppImg.ic_back), contentDescription = null)
@@ -134,7 +123,8 @@ fun SearchTextField(
     onValueChange: (String) -> Unit,
     onTextCleared: () -> Unit,
     onSearch: () -> Unit,
-    modifier: Modifier
+    focusManager: FocusManager,
+    modifier: Modifier,
 ) {
     OutlinedTextField(
         value = text,
@@ -168,7 +158,10 @@ fun SearchTextField(
             fontSize = 13.sp
         ),
         keyboardActions = KeyboardActions(
-            onDone = { onSearch() }
+            onDone = {
+                focusManager.clearFocus()
+                onSearch()
+            }
         )
     )
 }
@@ -195,14 +188,16 @@ fun UserCard(
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            ImgLoad(
-                imgUrl = img.toUri(),
-                modifier = modifier
-                    .size(60.dp)
-                    .clip(CircleShape)
-                    .border(2.dp, Color.Blue, CircleShape)
-            )
-            Text(text = nickName, modifier = Modifier.padding(20.dp,10.dp))
+            if (img != "") {
+                ImgLoad(
+                    imgUrl = img.toUri(),
+                    modifier = modifier
+                        .size(60.dp)
+                        .clip(CircleShape)
+                        .border(2.dp, Color.Blue, CircleShape)
+                )
+            }
+            Text(text = nickName, modifier = Modifier.padding(20.dp, 10.dp))
         }
     }
 }

@@ -1,8 +1,8 @@
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
-    id ("dagger.hilt.android.plugin")
-    id ("kotlin-kapt")
+    id("dagger.hilt.android.plugin")
+    id("kotlin-kapt")
 }
 
 android {
@@ -39,22 +39,23 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = Versions.compose_version
+        kotlinCompilerExtensionVersion = Versions.compose_compiler_version
     }
 }
 
 dependencies {
     implementation(project(":base"))
-    //Hilt
     implementation(Libs.Hilt.hiltAndroid)
     implementation(Libs.Hilt.navigationCompiler)
     kapt(Libs.Hilt.hiltCompiler)
-    testImplementation (Libs.Test.Junit)
-    androidTestImplementation (Libs.Test.extJunit)
-    androidTestImplementation (Libs.Test.espresso)
-    androidTestImplementation (Libs.Compose.testJunit)
-    debugImplementation (Libs.Compose.uiTooling)
-    debugImplementation (Libs.Compose.testManifest)
+    kapt(Libs.lifecycleCompiler)
+    kapt(Libs.Glide.compiler)
+    testImplementation(Libs.Test.Junit)
+    androidTestImplementation(Libs.Test.extJunit)
+    androidTestImplementation(Libs.Test.espresso)
+    androidTestImplementation(Libs.Compose.testJunit)
+    debugImplementation(Libs.Compose.uiTooling)
+    debugImplementation(Libs.Compose.testManifest)
 }
 kapt {
     correctErrorTypes = true

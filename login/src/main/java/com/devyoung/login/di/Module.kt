@@ -16,10 +16,6 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object Module {
 
-//    @Provides
-//    @Singleton
-//    fun provideFirebase() = Firebase
-
     @Provides
     @Singleton
     fun provideFirebaseRepository(): FirebaseRepository = FirebaseRepositoryImpl()
