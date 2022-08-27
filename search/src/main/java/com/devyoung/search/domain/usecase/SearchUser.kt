@@ -8,7 +8,7 @@ class SearchUser @Inject constructor(
 ) {
     suspend operator fun invoke(
         userNickname: String,
-        onError: (Throwable, String) -> Unit,
+        onError: (Throwable) -> Unit,
         onSuccess: (String, String) -> Unit
     ) {
         return repository.searchUser(userNickname, onError, onSuccess)

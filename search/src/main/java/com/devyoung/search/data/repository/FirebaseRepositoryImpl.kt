@@ -1,14 +1,12 @@
 package com.devyoung.search.data.repository
 
 
-import android.content.ContentValues
-import android.util.Log
 import com.devyoung.base.*
-import com.devyoung.search.data.Email
-import com.devyoung.search.data.User
+import com.devyoung.search.data.model.User
 import com.devyoung.search.domain.repository.FirebaseRepository
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
@@ -16,12 +14,6 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ListResult
 import com.google.firebase.storage.ktx.storage
 import javax.inject.Inject
-
-
-data class UserEmail(
-    val userEmail: String = ""
-)
-
 
 class FirebaseRepositoryImpl @Inject constructor() : FirebaseRepository {
 
@@ -44,27 +36,29 @@ class FirebaseRepositoryImpl @Inject constructor() : FirebaseRepository {
 
     override suspend fun searchUser(
         userNickname: String,
-        onError: (Throwable, String) -> Unit,
+        onError: (Throwable) -> Unit,
         onSuccess: (String, String) -> Unit
     ) {
         Firebase.firestore
-            .collection("SearchUser").document(userNickname)
+            .collection(SEARCH_USER).document(userNickname)
             .get()
             .addOnSuccessListener {
-                val user: UserEmail? = it.toObject(UserEmail::class.java)
-                if (user != null) {
-                    val profileImg =
-                        Firebase.storage.reference.child("${user.userEmail}/profileImg/profileImg.JPG")
-                    profileImg.downloadUrl
-                        .addOnSuccessListener { uri ->
-                            onSuccess(uri.toString(), user.userEmail)
-                        }
-                        .addOnFailureListener { error ->
-                            onError(error, user.userEmail)
-                        }
-                }
+                val email = it.get(EMAIL).toString()
+                val profileImg = Firebase.storage.reference.child("${email}/profileImg/profileImg.JPG")
+                profileImg.downloadUrl
+                    .addOnSuccessListener { uri ->
+                        onSuccess(uri.toString(), email)
+                    }
+                    .addOnFailureListener { error ->
+                        onError(error)
+                    }
+            }
+            .addOnFailureListener { error ->
+                onError(error)
             }
     }
+
+
 
     override suspend fun getAllPosts(
         userEmail: String,
@@ -84,6 +78,7 @@ class FirebaseRepositoryImpl @Inject constructor() : FirebaseRepository {
                         image.add(uri.toString())
                         cnt++
                         if (cnt == size) {
+                            image.sortDescending()
                             onSuccess(image)
                         }
                     }
@@ -137,7 +132,7 @@ class FirebaseRepositoryImpl @Inject constructor() : FirebaseRepository {
     ) {
         Firebase.firestore.collection(personEmail).document(REQUESTED_LIST)
             .collection(REQUESTED_EMAIL).document(email)
-            .set(Email(email = email))
+            .set(mapOf(EMAIL to email))
             .addOnCompleteListener {
                 onResult(it.exception)
             }
@@ -163,7 +158,7 @@ class FirebaseRepositoryImpl @Inject constructor() : FirebaseRepository {
     ) {
         Firebase.firestore.collection(email).document(WAITING_LIST)
             .collection(WAITING_EMAIL).document(personEmail)
-            .set(Email(email = personEmail))
+            .set(mapOf(EMAIL to personEmail))
             .addOnCompleteListener {
                 onResult(it.exception)
             }
@@ -204,7 +199,9 @@ class FirebaseRepositoryImpl @Inject constructor() : FirebaseRepository {
             .collection(FOLLOWING_EMAIL).document(personEmail)
             .delete()
             .addOnCompleteListener {
-                onResult(it.exception)
+                deleteUserStoryList(email,personEmail){
+                    onResult(it)
+                }
             }
     }
 
@@ -213,8 +210,8 @@ class FirebaseRepositoryImpl @Inject constructor() : FirebaseRepository {
         onResult: (Throwable?) -> Unit
     ) {
         Firebase.firestore
-            .collection(email).document("userInfo")
-            .update("following", FieldValue.increment(-1))
+            .collection(email).document(USER_INFO)
+            .update(FOLLOWING, FieldValue.increment(-1))
             .addOnCompleteListener { onResult(it.exception) }
     }
 
@@ -222,13 +219,22 @@ class FirebaseRepositoryImpl @Inject constructor() : FirebaseRepository {
         email: String,
         onResult: (Throwable?) -> Unit
     ) {
-
         Firebase.firestore
-            .collection(email).document("userInfo")
-            .update("follower", FieldValue.increment(-1))
+            .collection(email).document(USER_INFO)
+            .update(FOLLOWER, FieldValue.increment(-1))
             .addOnCompleteListener { onResult(it.exception) }
     }
 
+
+    private fun deleteUserStoryList(
+        email: String,
+        personEmail: String,
+        onResult: (Throwable?) -> Unit
+    ){
+        Firebase.firestore.collection(email).document(STORY_LIST)
+            .update(FieldPath.of(personEmail) , FieldValue.delete())
+            .addOnCompleteListener { onResult(it.exception) }
+    }
 
 
 

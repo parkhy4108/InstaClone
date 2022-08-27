@@ -1,8 +1,7 @@
 package com.devyoung.feeds.presentation.screen.feed
 
-import android.content.ContentValues.TAG
-import android.util.Log
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -15,9 +14,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,33 +25,42 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.devyoung.base.composable.ImgLoad
 import com.devyoung.base.R.drawable as AppImg
 import com.devyoung.base.R.string as AppText
+import android.net.Uri
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalFocusManager
+import com.devyoung.base.composable.BoundImgLoad
 import com.devyoung.feeds.data.model.Post
+import com.devyoung.feeds.data.model.Story
 import com.devyoung.feeds.data.model.User
 
-import com.skydoves.landscapist.glide.GlideImage
-import com.devyoung.feeds.presentation.composable.*
 
 @Composable
 fun FeedScreen(
     openScreen: (String) -> Unit,
     viewModel: FeedViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(Unit){
+    LaunchedEffect(Unit) {
         viewModel.getMyInfo()
         viewModel.getFeed()
+        viewModel.getStories()
     }
 
     val feedState by viewModel.feedState
     val selectedState = viewModel.isSelectedState
     val likedState = viewModel.isLikedState
+    val focusRequester by remember { mutableStateOf(FocusRequester()) }
+    val focusManager = LocalFocusManager.current
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -64,44 +69,67 @@ fun FeedScreen(
         FeedTopBar(
             text = stringResource(id = AppText.InstaClone),
             backgroundColor = Color.White,
-            onAddButtonClick = { viewModel.onPostAddClick(openScreen) },
-            onHeartButtonClick = { viewModel.onHeartClick(openScreen) }
+            isDropExpended = feedState.isDropExpanded,
+            dropDownOpen = { viewModel.dropDownOpen() },
+            dropDownCancel = { viewModel.dropDownCancel() },
+            onPostAddButtonClick = { viewModel.onPostAddClick(openScreen) },
+            onHeartButtonClick = { viewModel.onHeartClick(openScreen) },
+            onStoryAddClick = { viewModel.onStoryAddClicked(openScreen) },
+            focusManager = focusManager,
+            focusRequester = focusRequester
         )
-        LazyColumn(modifier = Modifier.fillMaxSize()){
+
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
             item {
                 StoryList(
-                    users = feedState.userList,
-                    onStoryClicked = { viewModel.onStoryClicked() })
+                    users = feedState.storyList,
+                    onStoryAddClick = { viewModel.onStoryAddClicked(openScreen) }
+                ) {
+                    viewModel.onStoryClicked(openScreen, it)
+                }
             }
             item {
-                if(!feedState.hasFollowing){
-                    Box(modifier = Modifier.fillMaxSize()){
-                        Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-                            Column(verticalArrangement = Arrangement.Center,horizontalAlignment = Alignment.CenterHorizontally) {
+                if (!feedState.hasFollowing) {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Column(
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
                                 Spacer(modifier = Modifier.height(20.dp))
-                                Text(text = stringResource(id = AppText.feedDescription1), fontSize = 18.sp , fontWeight = FontWeight.Bold)
+                                Text(
+                                    text = stringResource(id = AppText.feedDescription1),
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
                                 Spacer(modifier = Modifier.height(14.dp))
-                                Text(text = stringResource(id = AppText.feedDescription2), fontSize = 12.sp)
+                                Text(
+                                    text = stringResource(id = AppText.feedDescription2),
+                                    fontSize = 12.sp
+                                )
                                 Spacer(modifier = Modifier.height(20.dp))
                             }
                             UserListIndex(
                                 userList = feedState.userList,
-                                onCardClicked = {viewModel.onCardClicked()},
+                                onCardClicked = { viewModel.onCardClicked() },
                                 selectedState = selectedState,
-                                onFollowButtonClicked= viewModel::onFollowButtonClick,
+                                onFollowButtonClicked = viewModel::onFollowButtonClick,
                                 modifier = Modifier
                             )
-                            Divider(modifier = Modifier.height(1.dp), color = Color.LightGray)
                         }
                     }
                 }
             }
-            items(feedState.feedList){ feed ->
+            items(feedState.feedList) { feed ->
                 PostCard(
                     post = feed,
-                    isLiked = likedState[feed]?: false,
-                    onLikedButtonClicked = {viewModel.onLikeButtonClick(feed)},
-                    onCommentClicked = {viewModel.onCommentClick(feed) }
+                    isLiked = likedState[feed] ?: false,
+                    onLikedButtonClicked = { viewModel.onLikeButtonClick(feed) },
+                    onCommentClicked = { viewModel.onCommentClick() }
                 )
                 Spacer(modifier = Modifier.height(15.dp))
             }
@@ -109,28 +137,108 @@ fun FeedScreen(
     }
 }
 
-//@Composable
-//fun PostList(
-//    postList: List<Post>,
-//    likedState: Map<String, Boolean>,
-//    onLikedButtonClicked: (Post) -> Unit,
-//    onCommentClicked: () -> Unit,
-//    modifier: Modifier
-//){
-//    LazyColumn(
-//        modifier = modifier.fillMaxSize(),
-//        verticalArrangement = Arrangement.spacedBy(4.dp)
-//    ){
-//        items(postList){ post ->
-//            PostCard(
-//                post = post,
-//                isLiked = likedState[post.postImg]?: false,
-//                onLikedButtonClicked = onLikedButtonClicked,
-//                onCommentClicked = onCommentClicked
-//            )
-//        }
-//    }
-//}
+@Composable
+fun FeedTopBar(
+    text: String,
+    backgroundColor: Color,
+    isDropExpended: Boolean,
+    dropDownCancel: () -> Unit,
+    dropDownOpen: () -> Unit,
+    onPostAddButtonClick: () -> Unit,
+    onHeartButtonClick: () -> Unit,
+    onStoryAddClick: () -> Unit,
+    focusManager: FocusManager,
+    focusRequester: FocusRequester
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp, 0.dp)
+            .background(backgroundColor),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            modifier = Modifier.padding(5.dp),
+            text = text,
+            fontSize = 28.sp,
+            color = Color.Black,
+            fontFamily = FontFamily.Cursive,
+            fontWeight = FontWeight.Bold
+        )
+        Row(
+            modifier = Modifier,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(modifier = Modifier) {
+                IconButton(
+                    onClick = { dropDownOpen() }
+                ) {
+                    Icon(
+                        modifier = Modifier.size(30.dp),
+                        painter = painterResource(id = AppImg.ic_add),
+                        contentDescription = null
+                    )
+                }
+                DropdownMenu(
+                    expanded = isDropExpended,
+                    onDismissRequest = { dropDownCancel() }
+                ) {
+                    DropdownMenuItem(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        onClick = {
+                            onPostAddButtonClick()
+                            dropDownCancel()
+                        }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(text = stringResource(id = AppText.board))
+                            Icon(
+                                painter = painterResource(id = AppImg.ic_board),
+                                contentDescription = null
+                            )
+                        }
+                    }
+                    DropdownMenuItem(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        onClick = {
+                            onStoryAddClick()
+                            dropDownCancel()
+                        }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(text = stringResource(id = AppText.storyString))
+                            Icon(
+                                painter = painterResource(id = AppImg.ic_story),
+                                contentDescription = null
+                            )
+                        }
+                    }
+                }
+            }
+
+            IconButton(onClick = { onHeartButtonClick() }) {
+                Icon(
+                    modifier = Modifier.size(25.dp),
+                    painter = painterResource(id = AppImg.ic_heart),
+                    contentDescription = null
+                )
+            }
+
+        }
+    }
+}
+
 
 @Composable
 fun PostCard(
@@ -138,13 +246,13 @@ fun PostCard(
     isLiked: Boolean,
     onLikedButtonClicked: (Post) -> Unit,
     onCommentClicked: () -> Unit
-){
+) {
     val buttonResource =
-        if(isLiked) painterResource(id = AppImg.ic_like) else painterResource(id = AppImg.ic_nolike)
+        if (isLiked) painterResource(id = AppImg.ic_like) else painterResource(id = AppImg.ic_nolike)
     Column(
         modifier = Modifier.fillMaxSize(),
 
-    ) {
+        ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -153,13 +261,13 @@ fun PostCard(
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             ImgLoad(
-                post.postImg.toUri(),
+                post.userImage.toUri(),
                 modifier = Modifier
                     .size(50.dp)
                     .clip(CircleShape)
                     .border(2.dp, Color.Blue, CircleShape)
             )
-            Text(text = post.userNickname, modifier = Modifier.padding(), fontSize = 15.sp)
+            Text(text = post.userNickName, modifier = Modifier.padding(), fontSize = 15.sp)
         }
 
         ImgLoad(
@@ -172,7 +280,7 @@ fun PostCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp,0.dp)
+                .padding(10.dp, 0.dp)
         ) {
             Row(
                 modifier = Modifier
@@ -201,74 +309,34 @@ fun PostCard(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                Text(modifier=Modifier.clickable {  },text = "좋아요 ${post.like}개")
+                Text(modifier = Modifier.clickable { }, text = "좋아요 ${post.like}개")
                 Text(
                     buildAnnotatedString {
-                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)){
-                            append(post.userNickname)
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append(post.userNickName)
                         }
-                        append("  ${post.comments}" )
+                        append("  ${post.comments}")
                     }
 
                 )
-                Text(modifier = Modifier.clickable {  },text = "댓글 0개 모두보기", color = Color.LightGray)
+                Text(
+                    modifier = Modifier.clickable { },
+                    text = "댓글 0개 모두보기",
+                    color = Color.LightGray
+                )
 
                 Text(text = post.date)
             }
         }
     }
-    
-//    Box(
-//        modifier = Modifier.fillMaxSize()
-//    ){
-//
-//    }
 }
-
 
 @Composable
 fun UserListIndex(
     userList: List<User>,
-    selectedState: Map<Int,Boolean>,
+    selectedState: Map<Int, Boolean>,
     onFollowButtonClicked: (Int) -> Unit,
     onCardClicked: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-
-    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-    val cardWidthSize = 240.dp
-    val startPadding = (screenWidth - cardWidthSize)/2
-
-
-    LazyRow(
-        modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(startPadding,45.dp),
-        horizontalArrangement = Arrangement.spacedBy(35.dp)
-    ) {
-        itemsIndexed(items = userList) { index, item ->
-            RandomUserCard(
-                index = index,
-                user = item,
-                selectedState[index] ?: false,
-                onCardClicked = onCardClicked,
-                onFollowButtonClicked = onFollowButtonClicked,
-                modifier = Modifier
-                    .width(cardWidthSize)
-                    .height(350.dp)
-            )
-        }
-    }
-
-
-}
-
-@Composable
-fun RandomUserCard(
-    index: Int,
-    user: User,
-    isSelected: Boolean,
-    onCardClicked: (String) -> Unit,
-    onFollowButtonClicked: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val randomImage1 =
@@ -278,8 +346,48 @@ fun RandomUserCard(
     val randomImage3 =
         "https://randomwordgenerator.com/img/picture-generator/55e1dd454a54a514f1dc8460962e33791c3ad6e04e507749712e79d2934cc4_640.jpg"
 
+    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    val cardWidthSize = 240.dp
+    val startPadding = (screenWidth - cardWidthSize) / 2
+
+    LazyRow(
+        modifier = modifier.fillMaxSize(),
+        contentPadding = PaddingValues(startPadding, 45.dp),
+        horizontalArrangement = Arrangement.spacedBy(35.dp)
+    ) {
+        itemsIndexed(items = userList) { index, item ->
+            RandomUserCard(
+                index = index,
+                user = item,
+                randomImage1 = randomImage1.toUri(),
+                randomImage2 = randomImage2.toUri(),
+                randomImage3 = randomImage3.toUri(),
+                isSelected = selectedState[index] ?: false,
+                onCardClicked = onCardClicked,
+                onFollowButtonClicked = onFollowButtonClicked,
+                modifier = Modifier
+                    .width(cardWidthSize)
+                    .height(350.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun RandomUserCard(
+    randomImage1: Uri,
+    randomImage2: Uri,
+    randomImage3: Uri,
+    index: Int,
+    user: User,
+    isSelected: Boolean,
+    onCardClicked: (String) -> Unit,
+    onFollowButtonClicked: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
     val buttonColor by animateColorAsState(if (isSelected) Color.LightGray else Color(0xFF1E88E5))
-    val buttonText = if(isSelected) stringResource(id = AppText.following) else stringResource(id = AppText.follow)
+    val buttonText =
+        if (isSelected) stringResource(id = AppText.following) else stringResource(id = AppText.follow)
 
     Card(
         modifier = modifier
@@ -322,21 +430,26 @@ fun RandomUserCard(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                GlideImage(
+                BoundImgLoad(
+                    imgUrl = randomImage1,
                     modifier = Modifier
-                        .size(80.dp),
-                    imageModel = randomImage1
+                        .clip(RectangleShape)
+                        .weight(1f)
+                        .aspectRatio(1f)
                 )
-                GlideImage(
+                BoundImgLoad(
+                    imgUrl = randomImage2,
                     modifier = Modifier
-                        .size(80.dp),
-                    imageModel = randomImage2
+                        .clip(RectangleShape)
+                        .weight(1f)
+                        .aspectRatio(1f)
                 )
-                GlideImage(
+                BoundImgLoad(
+                    imgUrl = randomImage3,
                     modifier = Modifier
-                        .size(80.dp),
-
-                    imageModel = randomImage3
+                        .clip(RectangleShape)
+                        .weight(1f)
+                        .aspectRatio(1f)
                 )
             }
 
@@ -359,5 +472,108 @@ fun RandomUserCard(
             }
 
         }
+    }
+}
+
+@Composable
+fun StoryList(
+    users: List<Story>,
+    onStoryAddClick: () -> Unit,
+    onStoryClicked: (Story) -> Unit
+) {
+    LazyRow(
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(15.dp, 5.dp),
+        horizontalArrangement = Arrangement.spacedBy(25.dp)
+    ) {
+        itemsIndexed(items = users) { index, user ->
+            when (index) {
+                0 -> {
+                    MyStory(
+                        modifier = Modifier,
+                        myStoryImg = user.userStoryImg,
+                        myProfileImg = user.userImage,
+                        onStoryClicked = {
+                            if (user.userStoryImg == "") onStoryAddClick()
+                            else onStoryClicked(user)
+                        }
+                    )
+                }
+                else -> {
+                    MyPeopleStory(
+                        nickName = user.userNickName,
+                        userImage = user.userImage,
+                        modifier = Modifier,
+                        onStoryClicked = { onStoryClicked(user) }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun MyStory(
+    modifier: Modifier,
+    myStoryImg: String,
+    myProfileImg: String,
+    onStoryClicked: () -> Unit
+) {
+    val borderColor = if (myStoryImg == "") Color(0xFF1976D2) else Color(0xFF67FB2D)
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.SpaceEvenly,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier,
+            contentAlignment = Alignment.BottomEnd
+        ) {
+            ImgLoad(imgUrl = myProfileImg.toUri(), modifier = Modifier
+                .size(60.dp)
+                .clip(CircleShape)
+                .border(2.dp, borderColor, CircleShape)
+                .clickable { onStoryClicked() }
+            )
+            if (myStoryImg == "") {
+                Icon(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(Color.White),
+                    painter = painterResource(id = AppImg.ic_add_circle),
+                    contentDescription = null
+                )
+            }
+
+        }
+
+        Text(
+            text = stringResource(id = AppText.myStory),
+            fontSize = 10.sp,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+fun MyPeopleStory(
+    nickName: String,
+    userImage: String,
+    modifier: Modifier,
+    onStoryClicked: () -> Unit
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.SpaceEvenly,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        ImgLoad(
+            imgUrl = userImage.toUri(),
+            modifier = Modifier
+                .size(60.dp)
+                .clip(CircleShape)
+                .border(2.dp, Color(0xFFFDD835), CircleShape)
+                .clickable { onStoryClicked() })
+        Text(text = nickName, fontSize = 10.sp, textAlign = TextAlign.Center)
     }
 }

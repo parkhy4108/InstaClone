@@ -26,12 +26,15 @@ object Module {
 
     @Provides
     @Singleton
-    fun provideUseCases(firebaseRepository: FirebaseRepository, firestoreRepository: FirestoreRepository): ProfileUseCases {
-        return ProfileUseCases(
+    fun provideUseCases(firebaseRepository: FirebaseRepository, firestoreRepository: FirestoreRepository): UseCases {
+        return UseCases(
             getUserEmail = GetUserEmail(firebaseRepository),
             userLogOut = UserLogOut(firebaseRepository),
             getUserInfo = GetUserInfo(firestoreRepository),
-            getAllPosts = GetAllPosts(firestoreRepository)
+            getAllPosts = GetAllPosts(firestoreRepository),
+            updateNickName = UpdateNickName(firestoreRepository),
+            updateProfileImg = UpdateProfileImg(firestoreRepository),
+            checkNickName = CheckNickName(firestoreRepository)
         )
     }
 

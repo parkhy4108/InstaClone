@@ -1,33 +1,24 @@
 package com.devyoung.feeds.data.repository
 
-import android.content.ContentValues
-import android.content.ContentValues.TAG
 import android.net.Uri
 import android.util.Log
+import androidx.core.net.toUri
 import com.devyoung.base.*
-import com.devyoung.feeds.data.model.Email
-import com.devyoung.feeds.data.model.Post
-import com.devyoung.feeds.data.model.User
+import com.devyoung.feeds.data.model.*
 import com.devyoung.feeds.domain.reposiroty.FirebaseRepository
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
-import kotlinx.coroutines.flow.Flow
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
-import kotlin.collections.ArrayList
-import kotlin.math.log
 
 class FirebaseRepositoryImpl @Inject constructor() : FirebaseRepository {
-
-    private val currentTime: Long = System.currentTimeMillis()
-    private val postId =
-        SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.getDefault()).format(currentTime).toString()
 
     override suspend fun checkMyFollowerList(
         myEmail: String,
@@ -131,30 +122,140 @@ class FirebaseRepositoryImpl @Inject constructor() : FirebaseRepository {
             }
     }
 
-    override suspend fun getMyInfo(email: String, onError: (Throwable) -> Unit,onSuccess: (User) -> Unit) {
-        Firebase.firestore.collection(email).document("userInfo")
+    override suspend fun getMyInfo(
+        email: String,
+        onError: (Throwable) -> Unit,
+        onSuccess: (User) -> Unit
+    ) {
+        Firebase.firestore.collection(email).document(USER_INFO)
             .get()
             .addOnSuccessListener { result ->
-                onSuccess(result.toObject()?: User())
+                onSuccess(result.toObject() ?: User())
             }
             .addOnFailureListener { error ->
                 onError(error)
             }
     }
 
-
-
-    override suspend fun getStoryUserInfo(
+    override suspend fun getStories(
         myEmail: String,
-        onSuccess: (List<User>) -> Unit,
-        onError: (Throwable) -> Unit
+        onError: (Throwable) -> Unit,
+        onSuccess: (List<Story>) -> Unit,
     ) {
-//        val list : ArrayList<User> = arrayListOf()
-//        Firebase.firestore.collection(this.myEmail).document("userInfo")
-//            .get()
-//            .addOnSuccessListener { result ->
-//                list.add(result.toObject()?: User())
-//            }
+
+        val myInfoStore = Firebase.firestore.collection(myEmail).document(USER_INFO)
+        val myStoryStore = Firebase.firestore.collection(myEmail).document(MYSTORY)
+        val storyListStore = Firebase.firestore.collection(myEmail).document(STORY_LIST)
+        val dateForm = SimpleDateFormat(TIME_FORMAT, Locale.getDefault())
+        val currentTime: Long = System.currentTimeMillis()
+        val currentDate = dateForm.format(currentTime).toString().toLong()
+        val list = mutableListOf<Story>()
+        var cnt = 0
+
+        myInfoStore.get().addOnSuccessListener { myInfo ->
+
+            val myStoryObject = Story()
+
+            myStoryObject.userNickName = myInfo.data?.get(USER_NICKNAME).toString()
+            myStoryObject.userImage = myInfo.data?.get(USER_IMAGE).toString()
+
+            myStoryStore.get()
+                .addOnSuccessListener { story ->
+                    if (story.get(IMG).toString() == "") {
+                        myStoryObject.userStoryImg = ""
+                        list.add(myStoryObject)
+                        cnt++
+                    } else {
+                        if (currentDate - story.get(DATE).toString().toLong() > 1000000) {
+                            myStoryStore.update(
+                                mapOf(DATE to "", IMG to "")
+                            ).addOnSuccessListener {
+                                myStoryObject.userStoryImg = ""
+                                list.add(myStoryObject)
+                                cnt++
+                            }
+                        } else {
+                            myStoryObject.userStoryImg = story.get(IMG).toString()
+                            list.add(myStoryObject)
+                            cnt++
+                        }
+                    }
+                }
+                .addOnFailureListener { onError(it) }
+
+            storyListStore.get()
+                .addOnSuccessListener { userList ->
+                    val storyData = userList.data
+                    if (storyData!!.size!=1) {
+                        storyData.forEach { (userEmail, storedStoryImg) ->
+                            Log.d("TAG", "getStories: userEmail = $userEmail")
+                            val userStory = Story()
+                            if (userEmail != EXIST) {
+                                Firebase.firestore.collection(userEmail).document(MYSTORY).get()
+                                    .addOnSuccessListener { document ->
+                                        val currentStoryImg = document.get(IMG).toString()
+                                        if (currentStoryImg == "") {
+                                            cnt++
+                                            if (cnt == (storyData.size)) {
+                                                onSuccess(list)
+                                            }
+                                        } else {
+                                            val storyDate = if(document.get(DATE).toString()=="") 0 else document.get(DATE).toString().toLong()
+                                            if (currentDate - storyDate < 1000000) {
+                                                getUserNickNameAndImg(
+                                                    userEmail,
+                                                    onError
+                                                ) { nickName, img ->
+                                                    if (storedStoryImg != currentStoryImg) {
+                                                        updateStory(
+                                                            email = myEmail,
+                                                            userEmail = userEmail,
+                                                            image = currentStoryImg
+                                                        ) {
+                                                            if (it != null) {
+                                                                onError(it)
+                                                            }
+                                                        }
+                                                    }
+
+                                                    userStory.userNickName = nickName
+                                                    userStory.userImage = img
+                                                    userStory.userStoryImg = currentStoryImg
+
+                                                    list.add(userStory)
+                                                    cnt++
+
+                                                    if (cnt == storyData.size) {
+                                                        onSuccess(list)
+                                                    }
+                                                }
+                                            }
+                                            else {
+                                                updateStory(myEmail, userEmail, "") {
+                                                    if (it != null) {
+                                                        onError(it)
+                                                    } else {
+                                                        cnt++
+                                                        if (cnt == storyData.size) {
+                                                            onSuccess(list)
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    .addOnFailureListener { onError(it) }
+                            }
+
+                        }
+                    } else {
+                        onSuccess(list)
+                    }
+                }
+                .addOnFailureListener { onError(it) }
+        }.addOnFailureListener {
+            onError(it)
+        }
     }
 
     override suspend fun getFeed(
@@ -164,21 +265,31 @@ class FirebaseRepositoryImpl @Inject constructor() : FirebaseRepository {
     ) {
         val postList = mutableListOf<Post>()
         var cnt = 0
+
         Firebase.firestore
-            .collection(email).document("post")
-            .collection("postId")
+            .collection(email).document(POST)
             .get()
-            .addOnSuccessListener { documents ->
-                for(document in documents){
-                    Log.d(TAG, "getFeed: document size - ${documents.size()}")
-                    if(cnt == documents.size()-1){
+            .addOnSuccessListener { tasks ->
+                tasks.data?.forEach { (_, map) ->
+                    val post = Post()
+                    val m = map as Map<*, *>
+                    post.postId = m[POST_ID].toString()
+                    post.postImg = m[POST_IMAGE].toString()
+                    post.userId = m[USER_ID].toString()
+                    post.userImage = m[USER_IMAGE].toString()
+                    post.userNickName = m[USER_NICKNAME].toString()
+                    post.date = m[POST_DATE].toString()
+                    post.time = m[POST_TIME].toString()
+                    post.comments = m[POST_COMMENTS].toString()
+                    post.like = m[POST_LIKE].toString()
+                    postList.add(post)
+                    if (cnt == (tasks.data?.size?.minus(1) ?: 0)) {
                         onSuccess(postList)
                     }
-                    postList.add(cnt, document.toObject())
                     cnt++
                 }
             }
-            .addOnFailureListener { onError(it)}
+            .addOnFailureListener { onError(it) }
 
     }
 
@@ -192,12 +303,14 @@ class FirebaseRepositoryImpl @Inject constructor() : FirebaseRepository {
         post: Post,
         onResult: (Throwable?) -> Unit
     ) {
-        Log.d(TAG, "Post: $post ")
-        Firebase.firestore
-            .collection(email).document("post")
-            .collection("postId").document(post.postId.toString())
-            .set(post)
-            .addOnCompleteListener { onResult(it.exception) }
+        getUserNickNameAndImg(email, onResult) { nickName, img ->
+            post.userNickName = nickName
+            post.userImage = img
+            Firebase.firestore
+                .collection(email).document(POST)
+                .update(post.postId, post)
+                .addOnCompleteListener { onResult(it.exception) }
+        }
     }
 
     override suspend fun sendRequestToUser(
@@ -207,10 +320,45 @@ class FirebaseRepositoryImpl @Inject constructor() : FirebaseRepository {
     ) {
         Firebase.firestore.collection(personEmail).document(REQUESTED_LIST)
             .collection(REQUESTED_EMAIL).document(myEmail)
-            .set(Email(email = myEmail))
+            .set(mapOf(EMAIL to myEmail))
             .addOnCompleteListener {
                 onResult(it.exception)
             }
+    }
+
+    override suspend fun saveStoryImg(
+        email: String,
+        imageUrl: String,
+        date: String,
+        onResult: (Throwable?) -> Unit
+    ) {
+        val storageRef = Firebase.storage.reference
+        val imagesRef: StorageReference = storageRef.child("$email/story/")
+        imagesRef.child(MYSTORY).putFile(imageUrl.toUri())
+            .addOnSuccessListener {
+                Firebase.storage.reference.child("$email/story/myStory")
+                    .downloadUrl.addOnSuccessListener {
+                        Firebase.firestore.collection(email).document(MYSTORY)
+                            .update(IMG, it.toString())
+                            .addOnSuccessListener {
+                                Firebase.firestore.collection(email).document(MYSTORY)
+                                    .update(DATE, date)
+                                    .addOnCompleteListener { result ->
+                                        onResult(result.exception)
+                                    }
+                            }
+                            .addOnFailureListener { error ->
+                                onResult(error)
+                            }
+                    }
+                    .addOnFailureListener { error ->
+                        onResult(error)
+                    }
+            }
+            .addOnFailureListener {
+                onResult(it)
+            }
+
     }
 
     override suspend fun loadMyRequestedList(
@@ -227,8 +375,7 @@ class FirebaseRepositoryImpl @Inject constructor() : FirebaseRepository {
                 var cnt = 0
                 for (document in result) {
                     val size = result.size()
-                    Firebase.firestore.collection(document.id).document("userInfo")
-                        .get()
+                    Firebase.firestore.collection(document.id).document(USER_INFO).get()
                         .addOnSuccessListener { info ->
                             val user = info.toObject() ?: User()
                             list.add(user)
@@ -244,23 +391,14 @@ class FirebaseRepositoryImpl @Inject constructor() : FirebaseRepository {
             }
     }
 
-    override suspend fun loadStories(
-        myEmail: String,
-        onSuccess: (List<User>) -> Unit,
-        onError: (Throwable) -> Unit
-    ) {
-
-    }
-
-
 
     override suspend fun updatePostNum(
         myEmail: String,
         onResult: (Throwable?) -> Unit
     ) {
         Firebase.firestore
-            .collection(myEmail).document("userInfo")
-            .update("postNum", FieldValue.increment(1))
+            .collection(myEmail).document(USER_INFO)
+            .update(POST_NUM, FieldValue.increment(1))
             .addOnCompleteListener { onResult(it.exception) }
     }
 
@@ -269,8 +407,8 @@ class FirebaseRepositoryImpl @Inject constructor() : FirebaseRepository {
         onResult: (Throwable?) -> Unit
     ) {
         Firebase.firestore
-            .collection(email).document("userInfo")
-            .update("following", FieldValue.increment(1))
+            .collection(email).document(USER_INFO)
+            .update(FOLLOWING, FieldValue.increment(1))
             .addOnCompleteListener { onResult(it.exception) }
     }
 
@@ -280,8 +418,8 @@ class FirebaseRepositoryImpl @Inject constructor() : FirebaseRepository {
     ) {
 
         Firebase.firestore
-            .collection(email).document("userInfo")
-            .update("follower", FieldValue.increment(1))
+            .collection(email).document(USER_INFO)
+            .update(FOLLOWER, FieldValue.increment(1))
             .addOnCompleteListener { onResult(it.exception) }
     }
 
@@ -289,36 +427,34 @@ class FirebaseRepositoryImpl @Inject constructor() : FirebaseRepository {
         myEmail: String,
         postId: String,
         uri: Uri,
-        onResult: (Throwable?) -> Unit
+        onError: (Throwable) -> Unit,
+        onSuccess: (String) -> Unit
     ) {
-        Log.d(TAG, "email: $myEmail")
-        Log.d(TAG, "uri: $uri")
         val storageRef = Firebase.storage.reference
         val imagesRef: StorageReference = storageRef.child("$myEmail/post/")
+
         imagesRef.child(postId).putFile(uri)
-            .addOnCompleteListener {
-                onResult(it.exception)
+            .addOnSuccessListener {
+                Firebase.storage.reference.child("$myEmail/post/$postId")
+                    .downloadUrl.addOnSuccessListener {
+                        onSuccess(it.toString())
+                    }
             }
+            .addOnFailureListener { onError(it) }
     }
-
-
-
-
 
     override suspend fun updateMyFollowerList(
         myEmail: String,
         personEmail: String,
         onResult: (Throwable?) -> Unit
     ) {
-        val email = Email(email = personEmail)
         Firebase.firestore.collection(myEmail).document(FOLLOWER_LIST)
             .collection(FOLLOWER_EMAIL).document(personEmail)
-            .set(email)
+            .set(mapOf(EMAIL to personEmail))
             .addOnCompleteListener {
                 onResult(it.exception)
             }
     }
-
 
 
     override suspend fun updateUserFollowingList(
@@ -328,12 +464,23 @@ class FirebaseRepositoryImpl @Inject constructor() : FirebaseRepository {
     ) {
         Firebase.firestore.collection(personEmail).document(FOLLOWING_LIST)
             .collection(FOLLOWING_EMAIL).document(myEmail)
-            .set(Email(email = myEmail))
+            .set(mapOf(EMAIL to myEmail))
             .addOnCompleteListener {
                 onResult(it.exception)
             }
     }
 
+    override suspend fun updateStoryList(
+        email: String,
+        personEmail: String,
+        onResult: (Throwable?) -> Unit
+    ) {
+        Firebase.firestore.collection(personEmail).document(STORY_LIST)
+            .update(FieldPath.of(email), "")
+            .addOnCompleteListener {
+                onResult(it.exception)
+            }
+    }
 
 
     override suspend fun updateMyWaitingList(
@@ -343,17 +490,44 @@ class FirebaseRepositoryImpl @Inject constructor() : FirebaseRepository {
     ) {
         Firebase.firestore.collection(myEmail).document(WAITING_LIST)
             .collection(WAITING_EMAIL).document(personEmail)
-            .set(Email(email = personEmail))
+            .set(mapOf(EMAIL to personEmail))
             .addOnCompleteListener {
                 onResult(it.exception)
             }
     }
 
 
-    private suspend fun checkPost(
+    private fun updateStory(
+        email: String,
+        userEmail: String,
+        image: String?,
+        onResult: (Throwable?) -> Unit
+    ) {
+        Firebase.firestore.collection(email).document(STORY_LIST)
+            .update(FieldPath.of(userEmail),image)
+            .addOnCompleteListener {
+                onResult(it.exception)
+            }
+    }
 
-    ){
-
+    private fun getUserNickNameAndImg(
+        email: String,
+        onError: (Throwable) -> Unit,
+        onSuccess: (String, String) -> Unit
+    ) {
+        Firebase.firestore.collection(email).document(USER_INFO)
+            .get()
+            .addOnSuccessListener {
+                if (it.data != null) {
+                    onSuccess(
+                        it.data!!["userNickName"].toString(),
+                        it.data!!["userImage"].toString()
+                    )
+                }
+            }
+            .addOnFailureListener {
+                onError(it)
+            }
     }
 
 

@@ -1,6 +1,6 @@
 package com.devyoung.profile.domain.usecase
 
-import com.devyoung.profile.data.data_source.User
+import com.devyoung.profile.data.model.User
 import com.devyoung.profile.domain.repository.FirestoreRepository
 import javax.inject.Inject
 

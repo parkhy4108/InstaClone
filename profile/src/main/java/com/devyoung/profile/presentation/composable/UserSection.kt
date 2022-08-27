@@ -16,10 +16,13 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.devyoung.base.R.string as AppText
 import com.devyoung.base.composable.ImgLoad
-import com.devyoung.profile.data.data_source.User
+import com.devyoung.profile.data.model.User
 
 @Composable
-fun UserSection(user : User){
+fun UserSection(
+    user : User,
+    openScreen: () -> Unit
+){
     Column (
         modifier = Modifier
             .fillMaxWidth()
@@ -69,7 +72,7 @@ fun UserSection(user : User){
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(15.dp, 5.dp),
-            onClick = { }
+            onClick = { openScreen() }
         ) {
             Text(text = stringResource(id = AppText.profileEdit))
         }

@@ -78,12 +78,12 @@ fun SearchScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp)
+                .size(70.dp)
         ) {
             SearchBar(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(5.dp))
+                    .padding(10.dp)
+                    .clip(RoundedCornerShape(10.dp))
                     .background(color = Color.LightGray),
                 onClick = { viewModel.onSearchClick(openScreen) }
             )
@@ -91,7 +91,8 @@ fun SearchScreen(
         Divider(color = Color.LightGray)
         RandomImgGrid(
             imgList = imgList,
-            onClick = {viewModel.onImgClick()}
+            onClick = {viewModel.onImgClick()},
+            modifier = Modifier
         )
     }
 }
@@ -107,7 +108,7 @@ fun SearchBar(
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
@@ -130,13 +131,15 @@ fun SearchBar(
 @Composable
 fun RandomImgGrid(
     imgList: List<String>,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier
 ){
     val imageWidth = LocalConfiguration.current.screenWidthDp
     val imageHeight = imageWidth / 3
 
     LazyVerticalGrid(
-        columns = GridCells.Fixed(3)
+        columns = GridCells.Fixed(3),
+        modifier = modifier
     ){
         items(imgList){ img ->
             ImgLoad(
@@ -150,33 +153,3 @@ fun RandomImgGrid(
         }
     }
 }
-
-//IconButton(
-//modifier = Modifier
-//.fillMaxWidth()
-//.clip(RoundedCornerShape(5.dp))
-//.background(color = Color.LightGray)
-//,
-//onClick = { viewModel.onSearchClick(openScreen) }
-//) {
-//    Row(
-//        modifier = Modifier
-//            .fillMaxWidth(),
-//        verticalAlignment = Alignment.CenterVertically,
-//        horizontalArrangement = Arrangement.Start
-//    ) {
-//        Icon(
-//            modifier = Modifier
-//                .padding(10.dp,0.dp,0.dp,0.dp),
-//            painter = painterResource(id = AppImg.ic_search),
-//            contentDescription = null
-//        )
-//        Text(
-//            modifier = Modifier
-//                .padding(10.dp,0.dp,0.dp,0.dp),
-//            text = "검색",
-//            fontSize = 13.sp
-//        )
-//    }
-//}
-//}

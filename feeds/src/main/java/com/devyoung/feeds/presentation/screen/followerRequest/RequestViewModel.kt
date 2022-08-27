@@ -30,6 +30,7 @@ class RequestViewModel @Inject constructor(
     private val updateMyWaitingList: UpdateMyWaitingList,
     private val updateFollowingNum: UpdateFollowingNum,
     private val updateFollowerNum: UpdateFollowerNum,
+    private val updateStoryList: UpdateStoryList,
     private val sendRequestToUser: SendRequestToUser,
 
     ) : InstaViewModel() {
@@ -50,16 +51,15 @@ class RequestViewModel @Inject constructor(
             requestState.value = requestState.value.copy(loading = true)
             delay(3000)
             loadMyRequestedList(email.toString() ,::onError) { result ->
-                Log.d(TAG, "loadFollowerRequest: $result")
                 requestState.value = requestState.value.copy(followerList = result)
                 for(document in result){
                     userListState.add(document)
-                    Log.d(TAG, "loadFollowerRequest: document ${document.userEmail}")
                     checkMyFollowingList(document.userEmail)
                 }
             }
             requestState.value = requestState.value.copy(loading = false)
         }
+
     }
 
 
@@ -73,7 +73,6 @@ class RequestViewModel @Inject constructor(
     fun onBack(popUpScreen: () -> Unit) {
         popUpScreen()
     }
-//fun onFollowButtonClicked(personEmail: String) {
 
     fun onFollowButtonClicked(user: User) {
         if (isSelectedState[user.userEmail]==0) {
@@ -83,6 +82,7 @@ class RequestViewModel @Inject constructor(
             updateMyFollowerList(user.userEmail)
             updateFollowerNum(email.toString())
             updateFollowingNum(user.userEmail)
+            updateStoryList(user.userEmail)
         }
         else if(isSelectedState[user.userEmail]==1) {
             isSelectedState[user.userEmail]=2
@@ -101,9 +101,9 @@ class RequestViewModel @Inject constructor(
             updateFollowerNum(email.toString())
             updateFollowingNum(user.userEmail)
             updateUserFollowingList(user.userEmail)
+            updateStoryList(user.userEmail)
             userListState.remove(user)
             isSelectedState.remove(user.userEmail)
-
         }
     }
 
@@ -179,6 +179,16 @@ class RequestViewModel @Inject constructor(
         viewModelScope.launch(exceptionHandler) {
             updateFollowingNum(email){ error ->
                 if(error!=null) onError(error)
+            }
+        }
+    }
+
+    private fun updateStoryList(personEmail: String){
+        viewModelScope.launch(exceptionHandler) {
+            if (email != null) {
+                updateStoryList(email, personEmail){ error ->
+                    if(error!=null) onError(error)
+                }
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.devyoung.login.presentation.screen.signup
 
+import android.util.Log
 import androidx.compose.runtime.*
 import androidx.lifecycle.viewModelScope
 import com.devyoung.base.*
@@ -39,17 +40,20 @@ class SignUpViewModel @Inject constructor(
         signUpState.value = signUpState.value.copy(userNickName = newValue)
     }
 
-    fun onSignUpClick(openAndPopUp: (String, String) -> Unit){
+    fun onSignUpClick(
+        emptyUserImg: ByteArray,
+        navigateBottomBar: (String) -> Unit
+    ) {
         viewModelScope.launch(exceptionHandler) {
             userSignUp(email, password) { exception ->
                 if(exception == null) {
-                    saveUser(openAndPopUp)
+                    saveUser(emptyUserImg,navigateBottomBar)
                 }else onError(exception)
             }
         }
     }
 
-    private fun saveUser(openAndPopUp: (String, String) -> Unit) {
+    private fun saveUser(emptyUserImg: ByteArray, navigateBottomBar: (String) -> Unit) {
         viewModelScope.launch(exceptionHandler) {
             saveUserInfo(
                 user = User(
@@ -59,11 +63,12 @@ class SignUpViewModel @Inject constructor(
                     follower = 0,
                     following = 0,
                     postNum = 0
-                )
+                ),
+                img = emptyUserImg
             ) { exception ->
-                if(exception == null){
-                    openAndPopUp(BottomBarScreen.Feed.route, Screen.SignUp.route)
-                }else onError(exception)
+                if (exception == null) {
+                    navigateBottomBar(BottomBarScreen.Feed.route)
+                } else onError(exception)
             }
         }
     }
